@@ -1,0 +1,97 @@
+/* src/componentes/Login.css */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: sans-serif;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    background-image: url(/IMG/grunge-background-ideal-halloween.jpg);
+    background-size: cover;
+    background-repeat: no-repeat;
+    box-shadow: inset 0 0 0 2000px rgba(0, 0, 0, 0.5);
+}
+h4 {
+    color: #8B4513;
+}
+label {
+    color: #8B4513;
+    font-size: 20px;
+}
+section {
+    margin-top: 50px;
+    margin-bottom: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.card {
+    border-radius: 5px;
+    border-color: none;
+}
+.form-control {
+    border-color: #E74C3C;
+    border-radius: 6px;
+}
+.form-control:focus {
+    box-shadow: 0 0 0 0.2rem rgba(245, 0, 0, 0.25);
+    border-color: #E74C3C;
+}
+.botonLogin {
+    background-color: #E74C3C;
+    color: white;
+    border: transparent;
+    padding: 10px 20px;
+    border-radius: 15px;
+    transition: all 0.3s ease;
+    width: 50%;
+    font-size: 20px;
+}
+.botonLogin:hover {
+    background: linear-gradient(to right, #E74C3C, #d8363a, #E6513D, #E74C3C);
+    color: #fff;
+    border: none;
+    transform: scale(1.05);
+    transition: all 0.3s ease;
+}
+.card a {
+    list-style: none;
+    text-decoration: none;
+    color: white;
+}
+.gradient-custom-2 {
+    background: #fccb90;
+    background: -webkit-linear-gradient(to right, #f36704, #d8363a, #dd3675, #b44593);
+    background: linear-gradient(to right, #ee7724, #d8363a, #dd3675, #b44593);
+}
+@media (min-width: 768px) {
+    .gradient-form {
+        height: 100vh !important;
+    }
+}
+@media (min-width: 769px) {
+    .gradient-custom-2 {
+        border-top-right-radius: .3rem;
+        border-bottom-right-radius: .3rem;
+    }
+}
+.btn {
+    background-color: #FFB833;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: bold;
+}
+.btn:hover {
+    background-color: #c08516;
+    color: white;
+}
+.btn-group {
+    width: 100%;
+    height: 50px;
+}
+.h5 {
+    color: #8B4513;
+}
