@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import './Login.css'; // Importa el archivo CSS
-import AuthService from '../servicio/auth';
+import AuthService from '../service/auth';
 import { usuario } from '../types/usuario';
 import logoImg from '../IMG/imagen_2024-10-28_234052607-removebg-preview.png';
 import fabiLogoImg from '../IMG/FabiLogo.jpeg';
@@ -22,7 +22,7 @@ const Login: React.FC<LoginProps> = ({ onLogin, error }) => {
     try {
       console.log('Intentando login con:', { email, clave });
       const user = await AuthService.login(email, clave);
-
+      
       if (user) {
         alert('Login exitoso');
         onLogin(user);
