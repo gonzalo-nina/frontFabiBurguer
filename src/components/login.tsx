@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './Login.css'; // Importa el archivo CSS
+import '../styles/login.css'; // Importa el archivo CSS
 import AuthService from '../service/auth';
 import { usuario } from '../types/usuario';
 import logoImg from '../IMG/imagen_2024-10-28_234052607-removebg-preview.png';

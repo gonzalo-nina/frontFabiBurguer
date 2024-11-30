@@ -6,6 +6,7 @@ import './App.css'; // Importa el archivo CSS
 import ProductoSection from './components/ProductoSection';
 import ClienteSection from './components/ClienteSection';
 import CatalogoSection from './components/CatalogoSection';
+import Sidebar from './components/Sidebar';
 
 import grungeBackground from './IMG/grunge-background-ideal-halloween.jpg'; // Importa la imagen
 
@@ -13,6 +14,7 @@ import grungeBackground from './IMG/grunge-background-ideal-halloween.jpg'; // I
 const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [currentUser, setCurrentUser] = useState<usuario | null>(null);
+  const [activeSection, setActiveSection] = useState('productos');
 
   useEffect(() => {
     const user = auth.getCurrentUser();
@@ -34,22 +36,38 @@ const App: React.FC = () => {
     setCurrentUser(null);
   };
 
+  const renderActiveSection = () => {
+    switch(activeSection) {
+      case 'productos':
+        return <ProductoSection />;
+      case 'clientes':
+        return <ClienteSection />;
+      case 'catalogos':
+        return <CatalogoSection />;
+      default:
+        return <ProductoSection />;
+    }
+  };
+
   return (
     <div style={{ backgroundImage: `url(${grungeBackground})` }} className="app-background">
       {!isAuthenticated ? (
         <Login onLogin={handleLoginSuccess} error="" />
       ) : (
-        <div>
-          <h1>Bienvenido, {currentUser?.usuario}</h1>
-          <button onClick={handleLogout} className="btn btn-primary">Logout</button>
-          {}
-          {isAuthenticated && (
-            <>
-              <ProductoSection />
-              <ClienteSection />
-              <CatalogoSection />
-            </>
-          )}
+        <div className="layout-container">
+          <Sidebar 
+            activeSection={activeSection}
+            onSelectSection={setActiveSection}
+          />
+          <div className="main-content">
+            <div className="d-flex justify-content-between align-items-center mb-4">
+              <h1>Bienvenido, {currentUser?.usuario}</h1>
+              <button onClick={handleLogout} className="btn btn-primary">
+                Logout
+              </button>
+            </div>
+            {renderActiveSection()}
+          </div>
         </div>
       )}
     </div>
