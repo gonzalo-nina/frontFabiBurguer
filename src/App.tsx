@@ -3,10 +3,12 @@ import Login from './components/login';
 import { usuario } from './types/usuario';
 import auth from './service/auth';
 import './App.css'; // Importa el archivo CSS
-import ClientList from './components/ClienteLista';
+import ProductoSection from './components/ProductoSection';
+import ClienteSection from './components/ClienteSection';
+import CatalogoSection from './components/CatalogoSection';
+
 import grungeBackground from './IMG/grunge-background-ideal-halloween.jpg'; // Importa la imagen
-import ProductList from './components/ProductoLista';
-import CatalogoList from './components/CatalogoLista';
+
 
 const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -40,16 +42,13 @@ const App: React.FC = () => {
         <div>
           <h1>Bienvenido, {currentUser?.usuario}</h1>
           <button onClick={handleLogout} className="btn btn-primary">Logout</button>
-          {<ClientList />}
+          {}
           {isAuthenticated && (
-            <div>
-              <ProductList />
-            </div>
-          )}
-          {isAuthenticated && (
-            <div>
-              <CatalogoList />
-            </div>
+            <>
+              <ProductoSection />
+              <ClienteSection />
+              <CatalogoSection />
+            </>
           )}
         </div>
       )}

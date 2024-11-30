@@ -1,5 +1,9 @@
 export interface Catalogo {
-    idCatalogo?: number;
+
+    id?: number;
+  
     nombreCatalogo: string;
+  
     descripcionCatalogo: string;
-}
+  
+  }

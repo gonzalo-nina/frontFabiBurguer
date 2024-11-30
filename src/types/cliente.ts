@@ -1,8 +1,15 @@
+
 export interface Cliente {
-    idCliente?: number;
+
+    id?: number;
+  
     nombre: string;
+  
     email: string;
+  
     telefono: string;
+  
     direccion: string;
-    fechaRegistro: Date;
+  
+    fechaRegistro: string;
 }
