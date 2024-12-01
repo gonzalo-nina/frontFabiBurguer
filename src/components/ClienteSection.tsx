@@ -1,5 +1,5 @@
 // src/components/ClienteSection.tsx
-import React from 'react';
+
 import GenericList from './common/GenericList';
 import ClienteService from '../service/clienteService';
 import { Cliente } from '../types/cliente';

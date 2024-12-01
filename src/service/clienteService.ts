@@ -9,6 +9,7 @@ class ClienteService {
     const response = await axios.get(API_URL);
     return response.data;
   }
+  
 
   async getClienteById(id: number): Promise<Cliente> {
     const response = await axios.get(`${API_URL}/${id}`);

@@ -1,5 +1,4 @@
 // src/components/ProductoSection.tsx
-import React from 'react';
 import GenericList from './common/GenericList';
 import ProductoService from '../service/productoService';
 import { Producto } from '../types/producto';

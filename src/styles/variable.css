@@ -1,0 +1,14 @@
+/* src/styles/variables.css */
+:root {
+  --primary-color: #E74C3C;
+  --primary-hover: #c0392b;
+  --secondary-color: #8B4513;
+  --background-dark: #343a40;
+  --background-light: #f8f9fa;
+  --text-primary: #333333;
+  --text-secondary: #666666;
+  --white: #ffffff;
+  --success: #2ecc71;
+  --warning: #f1c40f;
+  --danger: #e74c3c;
+}

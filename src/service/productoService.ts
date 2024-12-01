@@ -20,6 +20,7 @@ class ProductoService {
         return response.data;
     }
 
+
     async updateProducto(id: number, producto: Producto): Promise<Producto> {
         const response = await axios.put(`${API_URL}/${id}`, producto);
         return response.data;

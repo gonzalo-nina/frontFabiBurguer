@@ -1,30 +1,101 @@
-/* src/components/Sidebar.css */
+/* src/styles/Sidebar.css */
 .sidebar {
-    min-height: 100vh;
-    width: 250px;
-    background-color: #343a40;
-    padding-top: 20px;
-  }
-  
-  .sidebar-link {
-    color: #ffffff !important;
-    padding: 15px 20px;
-    transition: all 0.3s;
-  }
-  
-  .sidebar-link:hover {
-    background-color: #495057;
-  }
-  
-  .sidebar-link.active {
-    background-color: #007bff;
-  }
-  
-  .main-content {
-    padding: 20px;
-    width: 100%;
-  }
-  
-  .layout-container {
-    display: flex;
-  }
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 250px;
+  height: 100vh;
+  background-color: var(--background-dark);
+  padding-top: 20px;
+  overflow-y: auto;
+  z-index: 1000;
+  box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+}
+
+.sidebar-header {
+  padding: 20px;
+  text-align: center;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.sidebar-header h3 {
+  color: var(--white);
+  margin: 0;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  color: var(--white) !important;
+  padding: 15px 20px;
+  text-decoration: none;
+  transition: all 0.3s;
+}
+
+.sidebar-icon {
+  margin-right: 10px;
+  font-size: 18px;
+}
+
+.sidebar-link:hover {
+  background-color: rgba(255,255,255,0.1);
+  text-decoration: none;
+}
+
+.sidebar-link.active {
+  background-color: var(--primary-color);
+  font-weight: bold;
+}
+
+.layout-container {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.main-content {
+  flex: 1;
+  margin-left: 250px; /* Match sidebar width */
+  padding: 20px 40px; /* Reduce vertical padding, increase horizontal */
+  background-color: rgba(255, 255, 255, 0.95);
+  min-height: 100vh;
+  overflow-y: auto;
+  width: calc(100% - 250px); /* Full remaining width */
+  box-sizing: border-box;
+}
+
+/* Make the welcome header stick to top */
+.header-container {
+  position: sticky;
+  top: 0;
+  background-color: rgba(255, 255, 255, 0.95);
+  padding: 20px 0;
+  margin-bottom: 30px;
+  z-index: 100;
+  border-bottom: 1px solid #dee2e6;
+  width: 100%;
+}
+
+/* Añadir estos estilos para los contenedores */
+.dashboard-container {
+  width: 100%;
+  max-width: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+.container {
+  max-width: 100%; /* Full width */
+  padding: 0; /* Remove padding */
+  margin: 0; /* Remove margin */
+}
+
+/* GenericList container styles */
+.py-4 {
+  width: 100%;
+  max-width: 100%;
+  padding: 1rem 0;
+  margin: 0;
+}

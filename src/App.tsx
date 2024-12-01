@@ -1,75 +1,67 @@
 import React, { useState, useEffect } from 'react';
-import Login from './components/login';
+import { useRoutes, useNavigate } from 'react-router-dom';
 import { usuario } from './types/usuario';
 import auth from './service/auth';
-import './App.css'; // Importa el archivo CSS
-import ProductoSection from './components/ProductoSection';
-import ClienteSection from './components/ClienteSection';
-import CatalogoSection from './components/CatalogoSection';
-import Sidebar from './components/Sidebar';
+import './App.css';
+import './styles/variable.css';
+import './styles/common.css';
 
-import grungeBackground from './IMG/grunge-background-ideal-halloween.jpg'; // Importa la imagen
-
+import grungeBackground from './IMG/grunge-background-ideal-halloween.jpg';
+import createRoutes from './router/routes';
 
 const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [currentUser, setCurrentUser] = useState<usuario | null>(null);
-  const [activeSection, setActiveSection] = useState('productos');
+  const navigate = useNavigate();
 
   useEffect(() => {
     const user = auth.getCurrentUser();
     if (user) {
+      console.log('🔄 Usuario recuperado del localStorage:', {
+        email: user.email,
+        usuario: user.usuario,
+        rol: user.rol
+      });
       setIsAuthenticated(true);
       setCurrentUser(user);
     }
   }, []);
 
   const handleLoginSuccess = (user: usuario) => {
+    console.log('✅ Login exitoso:', {
+      email: user.email,
+      usuario: user.usuario,
+      rol: user.rol
+    });
     setIsAuthenticated(true);
     setCurrentUser(user);
-    alert(`Bienvenido, ${user.usuario}`);
+    
+    // Mensaje de bienvenida personalizado según el rol
+    const rolTexto = user.rol === 'ADMIN' ? 'Administrador' : 'Usuario';
+    alert(`Bienvenido ${rolTexto}, ${user.usuario}`);
+    
+    navigate('/dashboard');
   };
 
   const handleLogout = () => {
+    console.log('👋 Cerrando sesión');
     auth.logout();
     setIsAuthenticated(false);
     setCurrentUser(null);
   };
 
-  const renderActiveSection = () => {
-    switch(activeSection) {
-      case 'productos':
-        return <ProductoSection />;
-      case 'clientes':
-        return <ClienteSection />;
-      case 'catalogos':
-        return <CatalogoSection />;
-      default:
-        return <ProductoSection />;
-    }
-  };
+  const routes = createRoutes(
+    isAuthenticated, 
+    currentUser, 
+    handleLogout,
+    handleLoginSuccess
+  );
+  
+  const element = useRoutes(routes);
 
   return (
     <div style={{ backgroundImage: `url(${grungeBackground})` }} className="app-background">
-      {!isAuthenticated ? (
-        <Login onLogin={handleLoginSuccess} error="" />
-      ) : (
-        <div className="layout-container">
-          <Sidebar 
-            activeSection={activeSection}
-            onSelectSection={setActiveSection}
-          />
-          <div className="main-content">
-            <div className="d-flex justify-content-between align-items-center mb-4">
-              <h1>Bienvenido, {currentUser?.usuario}</h1>
-              <button onClick={handleLogout} className="btn btn-primary">
-                Logout
-              </button>
-            </div>
-            {renderActiveSection()}
-          </div>
-        </div>
-      )}
+      {element}
     </div>
   );
 };
