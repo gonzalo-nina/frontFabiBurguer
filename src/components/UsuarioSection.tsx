@@ -15,11 +15,13 @@ const UsuarioSection = () => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [currentUserEmail, setCurrentUserEmail] = useState<string | null>(null);
 
   useEffect(() => {
     const checkAdminStatus = () => {
       try {
         const user = auth.getCurrentUser();
+        setCurrentUserEmail(user?.email || null);
         console.log('Current user:', user);
         const adminStatus = auth.isAdmin();
         console.log('Is admin:', adminStatus);
@@ -84,7 +86,12 @@ const UsuarioSection = () => {
     }
   };
 
-  const handleToggleActive = async (id: number, currentStatus: boolean) => {
+  const handleToggleActive = async (id: number, currentStatus: boolean, userEmail: string) => {
+    if (userEmail === currentUserEmail) {
+      setError('No puedes deshabilitar tu propia cuenta');
+      return;
+    }
+
     if (window.confirm(`¿Está seguro de ${currentStatus ? 'deshabilitar' : 'habilitar'} este usuario?`)) {
       try {
         if (currentStatus) {
@@ -127,6 +134,7 @@ const UsuarioSection = () => {
           setShowModal(true);
         }}
         onToggleActive={handleToggleActive}
+        currentUserEmail={currentUserEmail}
       />
 
       <UsuarioForm
@@ -134,6 +142,7 @@ const UsuarioSection = () => {
         onHide={() => setShowModal(false)}
         onSubmit={handleSubmit}
         usuarioEdit={selectedUsuario}
+        currentUserEmail={currentUserEmail}
       />
     </div>
   );

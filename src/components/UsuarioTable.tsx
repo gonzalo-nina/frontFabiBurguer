@@ -6,13 +6,15 @@ import { Usuario } from '../types/usuario';
 interface UsuarioTableProps {
   usuarios: Usuario[];
   onEdit: (usuario: Usuario) => void;
-  onToggleActive: (id: number, currentStatus: boolean) => void;
+  onToggleActive: (id: number, currentStatus: boolean, email: string) => void;
+  currentUserEmail: string | null;
 }
 
 const UsuarioTable: React.FC<UsuarioTableProps> = ({ 
   usuarios, 
   onEdit, 
-  onToggleActive 
+  onToggleActive,
+  currentUserEmail 
 }) => {
   return (
     <Table striped bordered hover>
@@ -27,22 +29,9 @@ const UsuarioTable: React.FC<UsuarioTableProps> = ({
       </thead>
       <tbody>
         {usuarios.map((usuario) => {
-          console.log('Usuario data:', {
-            id: usuario.id,
-            nombre: usuario.usuario,
-            activo: usuario.activo,
-            activoType: typeof usuario.activo
-          });
-
-          // Convertir explícitamente a booleano
           const isActive = usuario.activo === true;
+          const isCurrentUser = usuario.email === currentUserEmail;
           
-          console.log('Estado procesado:', {
-            id: usuario.id,
-            isActive,
-            isActiveType: typeof isActive
-          });
-
           return (
             <tr key={usuario.id} className={!isActive ? 'table-secondary' : ''}>
               <td>{usuario.id}</td>
@@ -54,13 +43,10 @@ const UsuarioTable: React.FC<UsuarioTableProps> = ({
                   id={`usuario-activo-${usuario.id}`}
                   checked={isActive}
                   onChange={() => {
-                    console.log('Toggle clicked:', {
-                      id: usuario.id,
-                      currentStatus: isActive
-                    });
-                    usuario.id && onToggleActive(usuario.id, isActive);
+                    usuario.id && onToggleActive(usuario.id, isActive, usuario.email);
                   }}
                   label={isActive ? 'Activo' : 'Inactivo'}
+                  disabled={isCurrentUser}
                 />
               </td>
               <td>

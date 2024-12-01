@@ -94,7 +94,7 @@ class AuthService {
       console.log('📱 Usuario actual recuperado:', {
         email: user.email,
         usuario: user.usuario,
-        rol: user.rol
+        rol: user.rol,
       });
       this.setAuthHeader(user.token);
       return user;

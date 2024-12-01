@@ -8,13 +8,15 @@ interface UsuarioFormProps {
   onHide: () => void;
   onSubmit: (usuario: Usuario) => void;
   usuarioEdit?: Usuario | null;
+  currentUserEmail: string | null;  // Añadir esta prop
 }
 
 const UsuarioForm: React.FC<UsuarioFormProps> = ({ 
   show, 
   onHide, 
   onSubmit, 
-  usuarioEdit 
+  usuarioEdit,
+  currentUserEmail 
 }) => {
   const [usuario, setUsuario] = useState<Usuario>({
     usuario: '',
@@ -62,15 +64,18 @@ const UsuarioForm: React.FC<UsuarioFormProps> = ({
               required
             />
           </Form.Group>
-          <Form.Group className="mb-3">
-            <Form.Label>Contraseña</Form.Label>
-            <Form.Control
-              type="password"
-              value={usuario.clave}
-              onChange={(e) => setUsuario({...usuario, clave: e.target.value})}
-              required={!usuarioEdit}
-            />
-          </Form.Group>
+          {(!usuarioEdit || (usuarioEdit && usuarioEdit.email === currentUserEmail)) && (
+            <Form.Group className="mb-3">
+              <Form.Label>{usuarioEdit ? 'Nueva Contraseña' : 'Contraseña'}</Form.Label>
+              <Form.Control
+                type="password"
+                value={usuario.clave}
+                onChange={(e) => setUsuario({...usuario, clave: e.target.value})}
+                required={!usuarioEdit}
+                placeholder={usuarioEdit ? 'Dejar vacío para mantener la actual' : ''}
+              />
+            </Form.Group>
+          )}
           <Button variant="primary" type="submit">
             Guardar
           </Button>
