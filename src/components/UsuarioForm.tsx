@@ -26,7 +26,6 @@ const UsuarioForm: React.FC<UsuarioFormProps> = ({
     rol: 'ROLE_USER' // Default role
   });
 
-  // Role options based on backend endpoints
   const roleOptions = [
     { value: 'ROLE_USER', label: 'Usuario' },
     { value: 'ROLE_ADMIN', label: 'Administrador' }
@@ -35,6 +34,15 @@ const UsuarioForm: React.FC<UsuarioFormProps> = ({
   useEffect(() => {
     if (usuarioEdit) {
       setUsuario(usuarioEdit);
+    } else {
+      // Reset form for new user
+      setUsuario({
+        usuario: '',
+        email: '',
+        clave: '',
+        activo: true,
+        rol: 'ROLE_USER'
+      });
     }
   }, [usuarioEdit]);
 
@@ -83,20 +91,23 @@ const UsuarioForm: React.FC<UsuarioFormProps> = ({
               />
             </Form.Group>
           )}
-          <Form.Group className="mb-3">
-            <Form.Label>Rol</Form.Label>
-            <Form.Select
-              value={usuario.rol}
-              onChange={(e) => setUsuario({...usuario, rol: e.target.value})}
-              required
-            >
-              {roleOptions.map(option => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </Form.Select>
-          </Form.Group>
+          {/* Solo mostrar selector de rol para nuevos usuarios */}
+          {!usuarioEdit && (
+            <Form.Group className="mb-3">
+              <Form.Label>Rol</Form.Label>
+              <Form.Select
+                value={usuario.rol}
+                onChange={(e) => setUsuario({...usuario, rol: e.target.value})}
+                required
+              >
+                {roleOptions.map(option => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </Form.Select>
+            </Form.Group>
+          )}
           <Button variant="primary" type="submit">
             Guardar
           </Button>
