@@ -108,12 +108,10 @@ const UsuarioForm: React.FC<UsuarioFormProps> = ({
               value={usuario.email}
               onChange={(e) => setUsuario({...usuario, email: e.target.value})}
               required
-              readOnly={!!usuarioEdit} // Hacer el campo readonly si estamos editando
-              disabled={!!usuarioEdit} // Deshabilitar el campo si estamos editando
             />
           </Form.Group>
-          {/* Add current password field when editing */}
-          {usuarioEdit && (
+          {/* Add current password field when editing current user */}
+          {usuarioEdit && usuarioEdit.email === currentUserEmail && (
             <Form.Group className="mb-3">
               <Form.Label>Contraseña Actual</Form.Label>
               <Form.Control
