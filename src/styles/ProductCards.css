@@ -1,0 +1,158 @@
+.pedidos-form-container {
+          max-width: 1200px;
+          margin: 0 auto;
+          padding: 20px;
+        }
+
+        .productos-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+          gap: 20px;
+          padding: 20px 0;
+        }
+
+        .producto-card {
+          background: white;
+          border-radius: 12px;
+          padding: 16px;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+          transition: all 0.3s ease;
+          animation: fadeIn 0.3s ease-out;
+          border: 1px solid #eee;
+          position: relative;
+        }
+
+        .producto-card:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .producto-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          margin-bottom: 12px;
+        }
+
+        .producto-title {
+          font-weight: 600;
+          color: var(--text-primary);
+          font-size: 1.1rem;
+          margin: 0;
+        }
+
+        .producto-price {
+          color: var(--primary-color);
+          font-weight: 600;
+          font-size: 1.1rem;
+        }
+
+        .producto-cantidad {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          margin: 12px 0;
+        }
+
+        .cantidad-control {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .producto-subtotal {
+          margin-top: 12px;
+          padding-top: 12px;
+          border-top: 1px solid #eee;
+          display: flex;
+          justify-content: space-between;
+          font-weight: 500;
+        }
+
+        .remove-button {
+          position: absolute;
+          top: 12px;
+          right: 12px;
+          background: none;
+          border: none;
+          cursor: pointer;
+          padding: 4px;
+          border-radius: 50%;
+          transition: all 0.2s ease;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .remove-button:hover {
+          background: rgba(231, 76, 60, 0.1);
+        }
+
+        .x-icon {
+          color: #666;
+          transition: color 0.2s ease;
+        }
+
+        .remove-button:hover .x-icon {
+          color: var(--danger);
+        }
+
+        .total-card {
+          background: white;
+          border-radius: 12px;
+          padding: 16px 24px;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+          margin-top: 20px;
+          border: 1px solid #eee;
+        }
+
+        .total-content {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        .total-label {
+          font-size: 1.25rem;
+          font-weight: 600;
+          color: var(--text-primary);
+        }
+
+        .total-amount {
+          font-size: 1.25rem;
+          font-weight: 600;
+          color: var(--primary-color);
+        }
+
+        .cliente-alert {
+          background-color: rgba(46, 204, 113, 0.1);
+          border: 1px solid var(--success);
+          border-left: 4px solid var(--success);
+          border-radius: 8px;
+          padding: 12px 16px;
+          animation: fadeIn 0.3s ease-out;
+          margin-bottom: 16px;
+        }
+
+        .alert-heading {
+          font-size: 0.875rem;
+          color: var(--success);
+          font-weight: 600;
+          margin-bottom: 4px;
+        }
+
+        .cliente-alert span {
+          color: var(--text-primary);
+          font-size: 1rem;
+        }
+
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }

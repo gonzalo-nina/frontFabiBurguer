@@ -16,26 +16,41 @@ const GenericCard = <T extends { id?: number }>({
   onDelete 
 }: GenericCardProps<T>) => {
   return (
-    <Card className="mb-3">
-      <Card.Body>
-        <Card.Title>{(item as any).nombre || (item as any).nombreCatalogo}</Card.Title>
-        <Card.Text>
+    <Card className="modern-card">
+      <Card.Body className="d-flex flex-column">
+        <Card.Title className="modern-card-title mb-3">
+          {(item as any).nombre || (item as any).nombreCatalogo}
+        </Card.Title>
+        
+        <div className="flex-grow-1 mb-4">
           {displayFields.map(field => (
-            <div key={String(field.key)}>
-              <strong>{field.label}:</strong>{' '}
-              {field.key === 'fechaRegistro' 
-                ? new Date((item[field.key] as any)).toLocaleDateString()
-                : String(item[field.key])}
-              <br/>
+            <div key={String(field.key)} className="field-item">
+              <span className="field-label">{field.label}:</span>
+              <span className="field-value">
+                {field.key === 'fechaRegistro' 
+                  ? new Date((item[field.key] as any)).toLocaleDateString()
+                  : String(item[field.key])}
+              </span>
             </div>
           ))}
-        </Card.Text>
-        <Button variant="primary" className="me-2" onClick={() => onEdit(item)}>
-          Editar
-        </Button>
-        <Button variant="danger" onClick={() => onDelete(item.id!)}>
-          Eliminar
-        </Button>
+        </div>
+        
+        <div className="button-group">
+          <Button 
+            variant="outline-primary" 
+            className="action-button" 
+            onClick={() => onEdit(item)}
+          >
+            Editar
+          </Button>
+          <Button 
+            variant="outline-danger" 
+            className="action-button" 
+            onClick={() => onDelete(item.id!)}
+          >
+            Eliminar
+          </Button>
+        </div>
       </Card.Body>
     </Card>
   );

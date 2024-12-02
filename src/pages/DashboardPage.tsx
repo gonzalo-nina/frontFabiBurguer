@@ -1,40 +1,37 @@
-
-import { Card,  Container, Row, Col} from 'react-bootstrap';
 import { Box, Users, ListOrdered } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import '../styles/Dashboard.css';
 
 const DashboardPage = () => {
   const cards = [
-    { title: 'Productos', icon: <Box className="w-8 h-8" />, path: '/productos', desc: 'Gestiona tu inventario' },
-    { title: 'Clientes', icon: <Users className="w-8 h-8" />, path: '/clientes', desc: 'Administra tus clientes' },
-    { title: 'Catálogos', icon: <ListOrdered className="w-8 h-8" />, path: '/catalogos', desc: 'Organiza tus productos' }
+    { title: 'Productos', icon: <Box className="card-icon" />, path: '/productos', desc: 'Gestiona tu inventario' },
+    { title: 'Clientes', icon: <Users className="card-icon" />, path: '/clientes', desc: 'Administra tus clientes' },
+    { title: 'Catálogos', icon: <ListOrdered className="card-icon" />, path: '/catalogos', desc: 'Organiza tus productos' }
   ];
 
   return (
-    <div className="min-h-screen bg-light">
-      
+    <div className="dashboard-container">
+      <div className="dashboard-header">
+        <h2>Panel de Control</h2>
+        <p>Bienvenido al sistema de gestión</p>
+      </div>
 
-      <Container className="py-4">
-        <div className="mb-4">
-          <h2 className="fw-bold">Panel de Control</h2>
-          <p className="text-muted">Bienvenido al sistema de gestión</p>
-        </div>
-
-        <Row className="g-4">
-          {cards.map((card, index) => (
-            <Col key={index} md={4}>
-              <Card className="h-100 hover-shadow cursor-pointer">
-                <Card.Body className="text-center d-flex flex-column align-items-center">
-                  <div className="text-primary mb-3">
-                    {card.icon}
-                  </div>
-                  <Card.Title className="fw-bold">{card.title}</Card.Title>
-                  <Card.Text className="text-muted">{card.desc}</Card.Text>
-                </Card.Body>
-              </Card>
-            </Col>
-          ))}
-        </Row>
-      </Container>
+      <div className="dashboard-grid">
+        {cards.map((card, index) => (
+          <Link to={card.path} key={index} className="dashboard-card-link">
+            <div className="dashboard-card">
+              <div className="card-content">
+                <div className="icon-wrapper">
+                  {card.icon}
+                </div>
+                <h3 className="card-title">{card.title}</h3>
+                <p className="card-description">{card.desc}</p>
+              </div>
+              <div className="card-arrow">→</div>
+            </div>
+          </Link>
+        ))}
+      </div>
     </div>
   );
 };

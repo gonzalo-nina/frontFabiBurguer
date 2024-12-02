@@ -17,7 +17,7 @@ const UsuarioTable: React.FC<UsuarioTableProps> = ({
   currentUserEmail 
 }) => {
   return (
-    <Table striped bordered hover>
+    <Table className="modern-table" hover>
       <thead>
         <tr>
           <th>ID</th>
@@ -51,9 +51,9 @@ const UsuarioTable: React.FC<UsuarioTableProps> = ({
               </td>
               <td>
                 <Button 
-                  variant="info" 
-                  size="sm" 
-                  className="me-2"
+                  variant="primary"
+                  size="sm"
+                  className="action-btn action-btn-edit"
                   onClick={() => onEdit(usuario)}
                   disabled={!isActive}
                 >

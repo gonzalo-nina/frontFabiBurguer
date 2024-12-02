@@ -5,6 +5,7 @@ import ClienteService from '../service/clienteService';
 import { Cliente } from '../types/cliente';
 
 const clienteFields = [
+    {key: 'id' as keyof Cliente, label: 'ID'},
     { key: 'nombre' as keyof Cliente, label: 'Nombre' },
     { key: 'email' as keyof Cliente, label: 'Email' },
     { key: 'telefono' as keyof Cliente, label: 'Teléfono' },
@@ -13,6 +14,13 @@ const clienteFields = [
 ];
 
 const clienteFormFields = [
+    {
+        name: 'id',
+        label: 'ID',
+        type: 'number' as const,
+        readOnly: true, // Make it read-only since it's auto-generated
+        hidden: true // Hide from form since it's auto-generated
+    },
     {
         name: 'nombre',
         label: 'Nombre',
@@ -47,16 +55,18 @@ const clienteFormFields = [
     }
 ];
 
-const ClienteSection = () => (
-    <GenericList<Cliente>
-        title="Clientes"
-        fetchItems={ClienteService.getAllClientes}
-        createItem={ClienteService.createCliente}
-        updateItem={ClienteService.updateCliente}
-        deleteItem={ClienteService.deleteCliente}
-        displayFields={clienteFields}
-        formFields={clienteFormFields}
-    />
-);
+const ClienteSection = () => {
+    return (
+        <GenericList<Cliente>
+            title="Clientes"
+            fetchItems={ClienteService.getAllClientes}
+            createItem={ClienteService.createCliente}
+            updateItem={ClienteService.updateCliente}
+            deleteItem={ClienteService.deleteCliente}
+            displayFields={clienteFields}
+            formFields={clienteFormFields}
+        />
+    );
+};
 
 export default ClienteSection;

@@ -90,8 +90,8 @@ const GenericList = <T extends { id?: number }>({
       </Row>
 
       <Row xs={1} md={2} lg={3} className="g-4">
-        {items.map((item) => (
-          <Col key={item.id}>
+        {items.map((item, index) => (
+          <Col key={item.id || `item-${index}`}>
             <GenericCard
               item={item}
               displayFields={displayFields}

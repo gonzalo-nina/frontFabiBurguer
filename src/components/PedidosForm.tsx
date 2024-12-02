@@ -5,25 +5,26 @@ import productoService from '../service/productoService';
 import { Cliente } from '../types/cliente';
 import { Producto } from '../types/producto';
 import { Pedido, DetallePedido } from '../types/Pedido';
+import { X } from 'lucide-react';
+import '../styles/ProductCards.css';
 
 interface ProductoSeleccionado extends Producto {
   cantidad: number;
 }
 
-interface PedidoFormProps {
+interface PedidosFormProps {
   onSubmit: (pedido: Pedido) => void;
   onCancel: () => void;
 }
 
-const PedidoForm: React.FC<PedidoFormProps> = ({ onSubmit, onCancel }) => {
+const PedidosForm: React.FC<PedidosFormProps> = ({ onSubmit, onCancel }) => {
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [productos, setProductos] = useState<Producto[]>([]);
-  const [clienteSeleccionado, setClienteSeleccionado] = useState<number>(0);
+  const [clienteId, setClienteId] = useState<string>('');
   const [productosSeleccionados, setProductosSeleccionados] = useState<ProductoSeleccionado[]>([]);
   const [showProductosModal, setShowProductosModal] = useState(false);
   const [total, setTotal] = useState(0);
 
-  // Cargar clientes y productos al iniciar
   useEffect(() => {
     const cargarDatos = async () => {
       try {
@@ -31,8 +32,6 @@ const PedidoForm: React.FC<PedidoFormProps> = ({ onSubmit, onCancel }) => {
           clienteService.getAllClientes(),
           productoService.getAllProductos()
         ]);
-        console.log('Clientes cargados:', clientesData); // Para depuración
-        console.log('Productos cargados:', productosData); // Para depuración
         setClientes(clientesData);
         setProductos(productosData);
       } catch (error) {
@@ -42,7 +41,6 @@ const PedidoForm: React.FC<PedidoFormProps> = ({ onSubmit, onCancel }) => {
     cargarDatos();
   }, []);
 
-  // Calcular total cuando cambian los productos seleccionados
   useEffect(() => {
     const nuevoTotal = productosSeleccionados.reduce((sum, producto) => 
       sum + (producto.precio * producto.cantidad), 0);
@@ -52,16 +50,13 @@ const PedidoForm: React.FC<PedidoFormProps> = ({ onSubmit, onCancel }) => {
   const handleAgregarProducto = (producto: Producto) => {
     const productoExistente = productosSeleccionados.find(p => p.id === producto.id);
     
-    // Verificar la disponibilidad antes de agregar o incrementar
     if (productoExistente) {
-      // Verificar que no exceda la disponibilidad
       if (productoExistente.cantidad < producto.disponibilidad) {
         setProductosSeleccionados(productosSeleccionados.map(p =>
           p.id === producto.id ? { ...p, cantidad: p.cantidad + 1 } : p
         ));
       }
     } else {
-      // Solo agregar si hay disponibilidad
       if (producto.disponibilidad > 0) {
         setProductosSeleccionados([...productosSeleccionados, { ...producto, cantidad: 1 }]);
       }
@@ -72,63 +67,105 @@ const PedidoForm: React.FC<PedidoFormProps> = ({ onSubmit, onCancel }) => {
     setProductosSeleccionados(productosSeleccionados.map(p => {
       if (p.id === productoId) {
         const nuevaCantidad = p.cantidad + incremento;
-        // Verificar límites
         if (nuevaCantidad > 0 && nuevaCantidad <= p.disponibilidad) {
           return { ...p, cantidad: nuevaCantidad };
         }
-        return incremento < 0 ? p : null; // Mantener producto si es decremento
+        return incremento < 0 ? p : null;
       }
       return p;
     }).filter(Boolean) as ProductoSeleccionado[]);
   };
 
+  const handleRemoveProduct = (id: number) => {
+    setProductosSeleccionados(prev => 
+      prev.filter(p => p.id !== id)
+    );
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!clienteSeleccionado || productosSeleccionados.length === 0) {
-      console.error('Faltan datos requeridos');
+    
+    if (!clienteId.trim()) {
+      console.error('Error: Debe seleccionar un cliente');
       return;
     }
-    
+
+    const clienteIdNumber = parseInt(clienteId);
+    if (isNaN(clienteIdNumber)) {
+      console.error(`Error: ID de cliente inválido: ${clienteId}`);
+      return;
+    }
+
+    if (productosSeleccionados.length === 0) {
+      console.error('Error: No hay productos seleccionados');
+      return;
+    }
+
     const pedido: Pedido = {
-      clienteId: clienteSeleccionado,
+      clienteId: clienteIdNumber,
       fecha: new Date().toISOString(),
       total,
       estado: false,
       detallePedido: productosSeleccionados
-        .filter(p => p.id !== undefined)
+        .filter((p): p is ProductoSeleccionado & { id: number } => p.id !== undefined)
         .map(p => ({
-          productoId: p.id as number,
+          productoId: p.id,
           cantidad: p.cantidad,
           precioUnitario: p.precio,
           subtotal: p.precio * p.cantidad
         }))
     };
-    console.log('Enviando pedido:', pedido); // Para depuración
+
     onSubmit(pedido);
   };
 
+  const updateCantidad = (productoId: number, nuevaCantidad: number): void => {
+    setProductosSeleccionados(prev => prev.map(producto => {
+      if (producto.id === productoId) {
+        if (nuevaCantidad > 0 && nuevaCantidad <= producto.disponibilidad) {
+          return { ...producto, cantidad: nuevaCantidad };
+        }
+        return producto;
+      }
+      return producto;
+    }));
+  };
+
   return (
-    <div>
+    <div className="pedidos-form-container">
       <Form onSubmit={handleSubmit}>
-        <Form.Group className="mb-3">
+        <Form.Group className="pedidos-form-select mb-4">
           <Form.Label>Cliente</Form.Label>
           <Form.Select
-            value={clienteSeleccionado}
+            value={clienteId}
             onChange={(e) => {
-              const value = Number(e.target.value);
-              console.log('Cliente seleccionado:', value); // Para depuración
-              setClienteSeleccionado(value);
+              const selectedId = e.target.value;
+              console.log('Selected ID:', selectedId, 'Type:', typeof selectedId);
+              setClienteId(selectedId);
             }}
             required
           >
             <option value="">Seleccione un Cliente</option>
-            {clientes.map(cliente => (
-              <option key={cliente.id} value={cliente.id}>
-                {cliente.nombre}
-              </option>
-            ))}
+            {clientes.map(cliente => {
+              console.log('Cliente ID:', cliente.id, 'Type:', typeof cliente.id);
+              return (
+                <option 
+                  key={cliente.id} 
+                  value={cliente.id} // Removemos toString() aquí
+                >
+                  {`${cliente.id} - ${cliente.nombre}`} {/* Agregamos el ID visible */}
+                </option>
+              );
+            })}
           </Form.Select>
         </Form.Group>
+
+        {clienteId && (
+          <div className="cliente-alert mb-4">
+            <div className="alert-heading">Cliente Seleccionado</div>
+            {clientes.find(c => c.id === Number(clienteId))?.nombre} {/* Convertimos clienteId a número */}
+          </div>
+        )}
 
         <Button
           variant="success"
@@ -141,63 +178,73 @@ const PedidoForm: React.FC<PedidoFormProps> = ({ onSubmit, onCancel }) => {
         {productosSeleccionados.length > 0 && (
           <div className="mb-3">
             <h5>Productos Seleccionados</h5>
-            <Table striped bordered>
-              <thead>
-                <tr>
-                  <th>Nombre</th>
-                  <th>Precio</th>
-                  <th>Cantidad</th>
-                  <th>Subtotal</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {productosSeleccionados.map(producto => (
-                  <tr key={producto.id}>
-                    <td>{producto.nombre}</td>
-                    <td>S/. {producto.precio.toFixed(2)}</td>
-                    <td>{producto.cantidad}</td>
-                    <td>S/. {(producto.precio * producto.cantidad).toFixed(2)}</td>
-                    <td>
-                      <Button
-                        variant="primary"
-                        size="sm"
-                        className="me-1"
-                        onClick={() => producto.id !== undefined && handleAjustarCantidad(producto.id, 1)}
-                      >
-                        +
-                      </Button>
-                      <Button
-                        variant="danger"
-                        size="sm"
-                        onClick={() => producto.id !== undefined && handleAjustarCantidad(producto.id, -1)}
+            <div className="productos-grid">
+              {productosSeleccionados.map((producto) => (
+                <div key={producto.id} className="producto-card">
+                  <button 
+                    className="remove-button"
+                    onClick={() => handleRemoveProduct(producto.id!)}
+                    aria-label="Remove product"
+                  >
+                    <X className="x-icon" size={16} strokeWidth={2} />
+                  </button>
+                  
+                  <div className="producto-header">
+                    <h3 className="producto-title">{producto.nombre}</h3>
+                    
+                  </div>
+
+                  <div className="producto-cantidad">
+                    <span>Cantidad:</span>
+                    <div className="cantidad-control">
+                      <Button 
+                        size="sm" 
+                        variant="outline-secondary"
+                        onClick={() => updateCantidad(producto.id!, Math.max(1, producto.cantidad - 1))}
                       >
                         -
                       </Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
-            <h4>Total: S/. {total.toFixed(2)}</h4>
+                      <span>{producto.cantidad}</span>
+                      <Button
+                        size="sm"
+                        variant="outline-secondary" 
+                        onClick={() => updateCantidad(producto.id!, Math.min(producto.disponibilidad, producto.cantidad + 1))}
+                      >
+                        +
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="producto-subtotal">
+                    <span>Subtotal:</span>
+                    <span>S/. {(producto.precio * producto.cantidad).toFixed(2)}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="total-card">
+              <div className="total-content">
+                <span className="total-label">Total:</span>
+                <span className="total-amount">S/. {total.toFixed(2)}</span>
+              </div>
+            </div>
           </div>
         )}
 
-        <div className="d-flex justify-content-end gap-2">
+        <div className="d-flex justify-content-end gap-2 mt-4">
           <Button variant="secondary" onClick={onCancel}>
             Cancelar
           </Button>
           <Button 
             variant="success" 
             type="submit"
-            disabled={!clienteSeleccionado || productosSeleccionados.length === 0}
+            disabled={!clienteId || productosSeleccionados.length === 0}
           >
             Agregar Pedido
           </Button>
         </div>
       </Form>
 
-      {/* Modal de Selección de Productos */}
       <Modal show={showProductosModal} onHide={() => setShowProductosModal(false)} size="lg">
         <Modal.Header closeButton>
           <Modal.Title>Seleccionar Productos</Modal.Title>
@@ -241,8 +288,9 @@ const PedidoForm: React.FC<PedidoFormProps> = ({ onSubmit, onCancel }) => {
           </Button>
         </Modal.Footer>
       </Modal>
-    </div>
+
+      </div>
   );
 };
 
-export default PedidoForm;
+export default PedidosForm;
