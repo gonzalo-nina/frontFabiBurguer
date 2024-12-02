@@ -1,12 +1,12 @@
 // src/components/UsuarioSection.tsx
 import React, { useState, useEffect } from 'react';
 import { Button, Alert } from 'react-bootstrap';
+import { Navigate } from 'react-router-dom';
 import UsuarioTable from './UsuarioTable';
 import UsuarioForm from './usuarioForm';
 import usuarioService from '../service/usuarioService';
-import { Usuario } from '../types/usuario';
+import { Usuario, UserRoles } from '../types/usuario';
 import auth from '../service/auth';
-import { Navigate } from 'react-router-dom';
 
 const UsuarioSection = () => {
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
@@ -16,25 +16,25 @@ const UsuarioSection = () => {
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [currentUserEmail, setCurrentUserEmail] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<string | null>(null);
 
   useEffect(() => {
-    const checkAdminStatus = () => {
+    const checkUserAccess = () => {
       try {
         const user = auth.getCurrentUser();
         setCurrentUserEmail(user?.email || null);
-        console.log('Current user:', user);
         const adminStatus = auth.isAdmin();
-        console.log('Is admin:', adminStatus);
         setIsAdmin(adminStatus);
+        setUserRole(user?.rol || null);
       } catch (error) {
-        console.error('Error checking admin status:', error);
+        console.error('Error checking user status:', error);
         setIsAdmin(false);
       } finally {
         setLoading(false);
       }
     };
 
-    checkAdminStatus();
+    checkUserAccess();
   }, []);
 
   useEffect(() => {
@@ -56,9 +56,14 @@ const UsuarioSection = () => {
     return <div>Cargando...</div>;
   }
 
-  if (!isAdmin) {
-    console.log('Usuario no es admin, redirigiendo...');
-    return <Navigate to="/dashboard" />;
+  if (userRole === UserRoles.USER) {
+    return (
+      <div className="container mt-4">
+        <Alert variant="warning">
+          No tienes permisos para acceder a esta sección. Esta vista está reservada para administradores.
+        </Alert>
+      </div>
+    );
   }
 
   const handleSubmit = async (usuario: Usuario) => {
