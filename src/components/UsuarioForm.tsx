@@ -22,8 +22,15 @@ const UsuarioForm: React.FC<UsuarioFormProps> = ({
     usuario: '',
     email: '',
     clave: '',
-    activo: true
+    activo: true,
+    rol: 'ROLE_USER' // Default role
   });
+
+  // Role options based on backend endpoints
+  const roleOptions = [
+    { value: 'ROLE_USER', label: 'Usuario' },
+    { value: 'ROLE_ADMIN', label: 'Administrador' }
+  ];
 
   useEffect(() => {
     if (usuarioEdit) {
@@ -76,6 +83,20 @@ const UsuarioForm: React.FC<UsuarioFormProps> = ({
               />
             </Form.Group>
           )}
+          <Form.Group className="mb-3">
+            <Form.Label>Rol</Form.Label>
+            <Form.Select
+              value={usuario.rol}
+              onChange={(e) => setUsuario({...usuario, rol: e.target.value})}
+              required
+            >
+              {roleOptions.map(option => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </Form.Select>
+          </Form.Group>
           <Button variant="primary" type="submit">
             Guardar
           </Button>

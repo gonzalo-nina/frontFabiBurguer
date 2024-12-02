@@ -21,7 +21,11 @@ class UsuarioService {
   }
 
   async createUsuario(usuario: Usuario): Promise<Usuario> {
-    const response = await axios.post(`${API_URL}/createUser`, usuario, this.getAuthHeader());
+    const endpoint = usuario.rol === 'ROLE_ADMIN' 
+      ? '/api/v1/admin/createAdmin'
+      : '/api/v1/user/createUser';
+      
+    const response = await axios.post(endpoint, usuario, this.getAuthHeader());
     return response.data;
   }
 

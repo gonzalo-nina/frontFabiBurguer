@@ -12,6 +12,7 @@ export interface Usuario {
   email: string;
   clave: string;
   activo: boolean;
+  rol?:string;
 }
   
   export enum UserRoles {
