@@ -2,7 +2,7 @@
 import axios from 'axios';
 import { Cliente } from '../types/cliente';
 
-const API_URL = '/api/v1/admin/clientes';
+const API_URL = '/api/v1/clientes';
 
 class ClienteService {
   async getAllClientes(): Promise<Cliente[]> {

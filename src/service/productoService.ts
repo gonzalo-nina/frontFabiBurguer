@@ -2,7 +2,7 @@
 import axios from 'axios';
 import { Producto } from '../types/producto';
 
-const API_URL = '/api/v1/admin/productos';
+const API_URL = '/api/v1/productos';
 
 class ProductoService {
     async getAllProductos(): Promise<Producto[]> {

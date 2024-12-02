@@ -2,7 +2,7 @@
 import axios from 'axios';
 import { Catalogo } from '../types/catalogo';
 
-const API_URL = '/api/v1/admin/catalogos';
+const API_URL = '/api/v1/catalogos';
 
 class CatalogoService {
   async getAllCatalogos(): Promise<Catalogo[]> {

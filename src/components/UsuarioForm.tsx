@@ -1,6 +1,6 @@
 // src/components/UsuarioForm.tsx
 import React, { useState, useEffect } from 'react';
-import { Form, Button, Modal } from 'react-bootstrap';
+import { Form, Button, Modal, Alert } from 'react-bootstrap';
 import { Usuario } from '../types/usuario';
 import authService from '../service/auth'; // Add this import
 
@@ -30,6 +30,8 @@ const UsuarioForm: React.FC<UsuarioFormProps> = ({
   // Add new state for current password
   const [currentPassword, setCurrentPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
+  // Add error state
+  const [apiError, setApiError] = useState<string | null>(null);
 
   // Reset states when form closes
   useEffect(() => {
@@ -64,6 +66,7 @@ const UsuarioForm: React.FC<UsuarioFormProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setApiError(null); // Reset error state
     
     // Validate current password if editing user
     if (usuarioEdit) {
@@ -73,14 +76,18 @@ const UsuarioForm: React.FC<UsuarioFormProps> = ({
           setPasswordError('La contraseña actual no es correcta');
           return;
         }
-      } catch (error) {
-        setPasswordError('Error al validar la contraseña');
+      } catch (error: any) {
+        setPasswordError(error.message || 'Error al validar la contraseña');
         return;
       }
     }
 
-    onSubmit(usuario);
-    onHide();
+    try {
+      await onSubmit(usuario);
+      onHide();
+    } catch (error: any) {
+      setApiError(error.response?.data?.message || 'Error al guardar el usuario');
+    }
   };
 
   return (
@@ -92,6 +99,11 @@ const UsuarioForm: React.FC<UsuarioFormProps> = ({
       </Modal.Header>
       <Modal.Body>
         <Form onSubmit={handleSubmit}>
+          {apiError && (
+            <Alert variant="danger" className="mb-3">
+              {apiError}
+            </Alert>
+          )}
           <Form.Group className="mb-3">
             <Form.Label>Usuario</Form.Label>
             <Form.Control

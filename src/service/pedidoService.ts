@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { Pedido } from '../types/Pedido';
 
-const API_URL = '/api/v1/admin/pedidos';
+const API_URL = '/api/v1/pedidos';
 
 class PedidoService {
   async listarPedidos(): Promise<Pedido[]> {
