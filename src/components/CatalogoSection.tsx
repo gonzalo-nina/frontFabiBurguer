@@ -1,38 +1,36 @@
 // src/components/CatalogoSection.tsx
-import GenericList from './common/GenericList';
-import CatalogoService from '../service/catalogoService';
+import React from 'react';
+import BaseList from './common/BaseList';
 import { Catalogo } from '../types/catalogo';
+import CatalogoService from '../service/catalogoService';
 
-const catalogoFields = [
-    { key: 'nombreCatalogo' as keyof Catalogo, label: 'Nombre' },
-    { key: 'descripcionCatalogo' as keyof Catalogo, label: 'Descripción' }
-];
-
-const catalogoFormFields = [
-    {
-        name: 'nombreCatalogo',
-        label: 'Nombre',
-        type: 'text' as const,
-        validation: { required: true }
-    },
-    {
-        name: 'descripcionCatalogo',
-        label: 'Descripción',
-        type: 'textarea' as const,
-        validation: { required: true }
-    }
-];
-
-const CatalogoSection = () => (
-    <GenericList<Catalogo>
-        title="Catálogos"
-        fetchItems={CatalogoService.getAllCatalogos}
-        createItem={CatalogoService.createCatalogo}
-        updateItem={CatalogoService.updateCatalogo}
-        deleteItem={CatalogoService.deleteCatalogo}
-        displayFields={catalogoFields}
-        formFields={catalogoFormFields}
+const CatalogoSection = () => {
+  return (
+    <BaseList<Catalogo>
+      title="Catálogos"
+      fetchItems={CatalogoService.getAllCatalogos}
+      createItem={CatalogoService.createCatalogo}
+      updateItem={CatalogoService.updateCatalogo}
+      deleteItem={CatalogoService.deleteCatalogo}
+      idField="idCatalogo"
+      titleField="nombreCatalogo"
+      descriptionField="descripcionCatalogo"
+      fields={[
+        {
+          name: 'nombreCatalogo',
+          label: 'Nombre',
+          type: 'text',
+          validation: { required: true }
+        },
+        {
+          name: 'descripcionCatalogo',
+          label: 'Descripción',
+          type: 'textarea',
+          validation: { required: true }
+        }
+      ]}
     />
-);
+  );
+};
 
 export default CatalogoSection;

@@ -1,6 +1,6 @@
 export interface Catalogo {
 
-    id?: number;
+    idCatalogo?: number;
   
     nombreCatalogo: string;
   
