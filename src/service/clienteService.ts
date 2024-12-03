@@ -6,22 +6,20 @@ const API_URL = '/api/v1/clientes';
 
 class ClienteService {
   async getAllClientes(): Promise<Cliente[]> {
-    const response = await axios.get(API_URL);
-    console.log('API Response:', response.data); // Debug API response
-    // Map the response to include id
-    return response.data.map((cliente: any) => ({
-      ...cliente,
-      id: cliente.idCliente // Map idCliente to id
-    }));
+    try {
+      const response = await axios.get(API_URL);
+      console.log('API Response:', response.data);
+      return response.data; // Return data directly since backend matches interface
+    } catch (error) {
+      console.error('Error fetching clientes:', error);
+      throw error;
+    }
   }
   
   async getClienteById(id: number): Promise<Cliente | null> {
     try {
       const response = await axios.get(`${API_URL}/${id}`);
-      return {
-        ...response.data,
-        id: response.data.idCliente
-      };
+      return response.data;
     } catch (error: any) {
       if (error.response?.status === 404) {
         return null;

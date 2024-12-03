@@ -89,65 +89,65 @@ const PedidosForm: React.FC<PedidosFormProps> = ({ onSubmit, onCancel }) => {
     e.preventDefault();
     
     try {
-      const user = auth.getCurrentUser();
-      if (!user) {
-        console.error('❌ No authenticated user found');
-        // Handle unauthenticated state
-        return;
-      }
-
       console.log('🛒 Iniciando proceso de creación de pedido');
       
-      if (!clienteId) {
-        console.error('❌ No hay cliente seleccionado');
-        return;
-      }
-  
-      if (productosSeleccionados.length === 0) {
-        console.error('❌ No hay productos seleccionados');
-        return;
-      }
-  
-      // Crear pedido
+      // 1. Create pedido base
       const pedidoDTO: PedidoDTO = {
         idCliente: parseInt(clienteId),
         estadoPedido: false,
-        subtotal: total
+        subtotal: 0 // Initially 0
       };
   
       console.log('📦 Datos del pedido a crear:', pedidoDTO);
-  
       const pedidoCreado = await pedidoService.crearPedido(pedidoDTO);
       console.log('✅ Pedido base creado:', pedidoCreado);
   
-      // Crear detalles
-      console.log('📝 Iniciando creación de detalles para productos:', productosSeleccionados.length);
+      // 2. Create detalles
+      console.log('📝 Creando detalles para', productosSeleccionados.length, 'productos');
+      
+      if (pedidoCreado.idPedido) {
+        for (const producto of productosSeleccionados) {
+          const detalle = {
+            pedido: {
+              idPedido: pedidoCreado.idPedido
+            },
+            producto: {
+              idProducto: producto.idProducto
+            },
+            cantidad: producto.cantidad,
+            precioUnitario: producto.precio,
+            subtotal: producto.precio * producto.cantidad
+          };
   
-      for (const producto of productosSeleccionados) {
-        console.log('📦 Preparando detalle para producto:', producto);
-
-        const detalle: DetallePedido = {
-          pedido: {
-            idPedido: pedidoCreado.idPedido!
-          },
-          producto: {
-            idProducto: producto.idProducto
-          },
-          cantidad: producto.cantidad,
-          precioUnitario: producto.precio,
-          subtotal: producto.precio * producto.cantidad
+          console.log('📦 Enviando detalle:', detalle);
+          await pedidoService.crearDetallePedido(detalle);
+        }
+  
+        // 3. Update pedido with final subtotal
+        const subtotalFinal = productosSeleccionados.reduce((sum, producto) => 
+          sum + (producto.precio * producto.cantidad), 0
+        );
+  
+        const pedidoActualizado: PedidoDTO = {
+          ...pedidoDTO,
+          idPedido: pedidoCreado.idPedido,
+          subtotal: subtotalFinal
         };
   
-        console.log('📦 Enviando detalle:', detalle);
-        await pedidoService.crearDetallePedido(detalle);
+        console.log('💰 Actualizando subtotal del pedido:', {
+          id: pedidoCreado.idPedido,
+          subtotal: subtotalFinal
+        });
+  
+        await pedidoService.actualizarSubtotalPedido(pedidoCreado.idPedido, pedidoActualizado);
+        console.log('✅ Subtotal actualizado exitosamente');
       }
   
       console.log('✅ Proceso completado exitosamente');
       onSubmit(pedidoCreado);
   
     } catch (error) {
-      console.error('❌ Error en el proceso de creación:', error);
-      // Aquí podrías agregar lógica para mostrar el error al usuario
+      console.error('❌ Error en el proceso:', error);
     }
   };
 
@@ -170,32 +170,25 @@ const PedidosForm: React.FC<PedidosFormProps> = ({ onSubmit, onCancel }) => {
           <Form.Label>Cliente</Form.Label>
           <Form.Select
             value={clienteId}
-            onChange={(e) => {
-              const selectedId = e.target.value;
-              console.log('Selected ID:', selectedId, 'Type:', typeof selectedId);
-              setClienteId(selectedId);
-            }}
+            onChange={(e) => setClienteId(e.target.value)}
             required
           >
             <option value="">Seleccione un Cliente</option>
-            {clientes.map(cliente => {
-              console.log('Cliente ID:', cliente.id, 'Type:', typeof cliente.id);
-              return (
-                <option 
-                  key={cliente.id} 
-                  value={cliente.id} // Removemos toString() aquí
-                >
-                  {`${cliente.id} - ${cliente.nombre}`} {/* Agregamos el ID visible */}
-                </option>
-              );
-            })}
+            {clientes.map(cliente => (
+              <option 
+                key={cliente.idCliente} 
+                value={cliente.idCliente}
+              >
+                {`${cliente.idCliente} - ${cliente.nombre}`}
+              </option>
+            ))}
           </Form.Select>
         </Form.Group>
 
         {clienteId && (
           <div className="cliente-alert mb-4">
             <div className="alert-heading">Cliente Seleccionado</div>
-            {clientes.find(c => c.id === Number(clienteId))?.nombre} {/* Convertimos clienteId a número */}
+            {clientes.find(c => c.idCliente === Number(clienteId))?.nombre}
           </div>
         )}
 

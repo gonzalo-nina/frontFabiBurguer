@@ -5,27 +5,30 @@ import ClienteService from '../service/clienteService';
 import { Cliente } from '../types/cliente';
 
 const clienteFields = [
-    {key: 'id' as keyof Cliente, label: 'ID'},
+    { key: 'idCliente' as keyof Cliente, label: 'ID' },
     { key: 'nombre' as keyof Cliente, label: 'Nombre' },
     { key: 'email' as keyof Cliente, label: 'Email' },
     { key: 'telefono' as keyof Cliente, label: 'Teléfono' },
-    { key: 'direccion' as keyof Cliente, label: 'Dirección' },
-    { key: 'fechaRegistro' as keyof Cliente, label: 'Fecha de Registro' }
+    { key: 'direccion' as keyof Cliente, label: 'Dirección' }
 ];
 
 const clienteFormFields = [
     {
-        name: 'id',
+        name: 'idCliente',
         label: 'ID',
         type: 'number' as const,
-        readOnly: true, // Make it read-only since it's auto-generated
+        readOnly: true,
         hidden: true // Hide from form since it's auto-generated
     },
     {
         name: 'nombre',
         label: 'Nombre',
         type: 'text' as const,
-        validation: { required: true }
+        validation: { 
+            required: true,
+            minLength: 3,
+            maxLength: 100
+        }
     },
     {
         name: 'email',
@@ -51,7 +54,11 @@ const clienteFormFields = [
         name: 'direccion',
         label: 'Dirección',
         type: 'text' as const,
-        validation: { required: true }
+        validation: { 
+            required: true,
+            minLength: 5,
+            maxLength: 200
+        }
     }
 ];
 

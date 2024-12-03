@@ -11,11 +11,13 @@ interface GenericListProps<T> {
   createItem: (item: T) => Promise<T>;
   updateItem: (id: number, item: T) => Promise<T>;
   deleteItem: (id: number) => Promise<void>;
-  displayFields: { key: keyof T; label: string }[];
+  displayFields: Array<{ key: keyof T; label: string }>;
   formFields: FormField[];
+  idField?: keyof T; // Add optional idField prop
 }
 
-const GenericList = <T extends { id?: number }>({
+const GenericList = <T extends object>({
+  idField = 'id' as keyof T,  // Default to 'id' if not specified
   title,
   fetchItems,
   createItem,
@@ -44,8 +46,8 @@ const GenericList = <T extends { id?: number }>({
 
   const handleSave = async (item: T) => {
     try {
-      if (selectedItem?.id) {
-        await updateItem(selectedItem.id, item);
+      if (selectedItem && selectedItem[idField]) {
+        await updateItem(selectedItem[idField] as number, item);
       } else {
         await createItem(item);
       }
@@ -59,9 +61,10 @@ const GenericList = <T extends { id?: number }>({
   };
 
   const handleDelete = async (id: number) => {
+    const itemId = id;
     if (window.confirm(`¿Está seguro de eliminar este ${title}?`)) {
       try {
-        await deleteItem(id);
+        await deleteItem(itemId);
         loadItems();
       } catch (error) {
         console.error(`Error deleting ${title}:`, error);
@@ -91,7 +94,7 @@ const GenericList = <T extends { id?: number }>({
 
       <Row xs={1} md={2} lg={3} className="g-4">
         {items.map((item, index) => (
-          <Col key={item.id || `item-${index}`}>
+          <Col key={String(item[idField]) || `item-${index}`}>
             <GenericCard
               item={item}
               displayFields={displayFields}
@@ -99,7 +102,7 @@ const GenericList = <T extends { id?: number }>({
                 setSelectedItem(item);
                 setShowForm(true);
               }}
-              onDelete={handleDelete}
+              onDelete={(id) => handleDelete(id as unknown as number)}
             />
           </Col>
         ))}
