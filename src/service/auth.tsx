@@ -81,6 +81,34 @@ class AuthService {
     }
   }
 
+  // Add new method for password validation
+  async validatePassword(email: string, password: string): Promise<boolean> {
+    try {
+      const response = await axios.post(`${API_URL}/validate-password`, {
+        email,
+        password
+      });
+      return response.data.valid;
+    } catch (error) {
+      console.error('Error validating password:', error);
+      return false;
+    }
+  }
+
+  // Add new method for current password validation
+  async validateCurrentPassword(email: string, currentPassword: string): Promise<boolean> {
+    try {
+      const response = await axios.post('/api/v1/usuarios/validate-password', {
+        email,
+        password: currentPassword
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error validating current password:', error);
+      return false;
+    }
+  }
+
   logout() {
     console.log('🚪 Ejecutando logout');
     localStorage.removeItem('user');

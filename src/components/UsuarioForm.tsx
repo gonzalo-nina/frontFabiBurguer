@@ -66,24 +66,30 @@ const UsuarioForm: React.FC<UsuarioFormProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setApiError(null); // Reset error state
+    setApiError(null);
     
-    // Validate current password if editing user
-    if (usuarioEdit) {
+    // Validate current password using login if editing current user and changing password
+    if (usuarioEdit && usuarioEdit.email === currentUserEmail && usuario.clave) {
       try {
-        const isValid = await authService.login(usuarioEdit.email, currentPassword);
-        if (!isValid) {
+        const loginResult = await authService.login(usuarioEdit.email, currentPassword);
+        if (!loginResult) {
           setPasswordError('La contraseña actual no es correcta');
           return;
         }
       } catch (error: any) {
-        setPasswordError(error.message || 'Error al validar la contraseña');
+        setPasswordError('La contraseña actual no es correcta');
         return;
       }
     }
 
+    // Prepare user data for submission - send raw password
+    const usuarioToSubmit = {
+      ...usuario,
+      ...(usuario.clave && { clave: usuario.clave }) // Send raw password if changed
+    };
+
     try {
-      await onSubmit(usuario);
+      await onSubmit(usuarioToSubmit);
       onHide();
     } catch (error: any) {
       setApiError(error.response?.data?.message || 'Error al guardar el usuario');
