@@ -156,6 +156,7 @@ const PedidosSection = () => {
     <PedidosForm 
       onSubmit={handlePedido}
       onCancel={() => setShowModal(false)}
+      selectedPedido={selectedPedido}
     />
   </Modal.Body>
 </Modal>

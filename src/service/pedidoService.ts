@@ -122,6 +122,17 @@ class PedidoService {
       throw error;
     }
   }
+
+  // Add new method
+  async obtenerDetallesPedido(idPedido: number): Promise<DetallePedido[]> {
+    try {
+      const response = await axios.get(`${DETALLE_API_URL}/pedido/${idPedido}`, this.getAuthHeader());
+      return response.data;
+    } catch (error) {
+      console.error('Error al obtener detalles:', error);
+      throw error;
+    }
+  }
 }
 
 export default new PedidoService();

@@ -18,9 +18,11 @@ interface ProductoSeleccionado extends Producto {
 interface PedidosFormProps {
   onSubmit: (pedido: Pedido) => void;
   onCancel: () => void;
+  selectedPedido?: Pedido | null;
+  
 }
 
-const PedidosForm: React.FC<PedidosFormProps> = ({ onSubmit, onCancel }) => {
+const PedidosForm: React.FC<PedidosFormProps> = ({ onSubmit, onCancel, selectedPedido }) => {
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [productos, setProductos] = useState<Producto[]>([]);
   const [clienteId, setClienteId] = useState<string>('');
@@ -49,6 +51,35 @@ const PedidosForm: React.FC<PedidosFormProps> = ({ onSubmit, onCancel }) => {
       sum + (producto.precio * producto.cantidad), 0);
     setTotal(nuevoTotal);
   }, [productosSeleccionados]);
+
+  useEffect(() => {
+    const cargarPedidoExistente = async () => {
+      if (selectedPedido?.idPedido) {
+        try {
+          // Load order details
+          const detalles = await pedidoService.obtenerDetallesPedido(selectedPedido.idPedido);
+          
+          // Convert details to ProductoSeleccionado format
+          const productosDelPedido = detalles.map(detalle => ({
+            idProducto: detalle.producto.idProducto,
+            nombre: productos.find(p => p.idProducto === detalle.producto.idProducto)?.nombre || '',
+            precio: detalle.precioUnitario,
+            cantidad: detalle.cantidad,
+            disponibilidad: productos.find(p => p.idProducto === detalle.producto.idProducto)?.disponibilidad || 0,
+            descripcion: productos.find(p => p.idProducto === detalle.producto.idProducto)?.descripcion || '',
+            idCatalogo: productos.find(p => p.idProducto === detalle.producto.idProducto)?.idCatalogo || 0
+          }));
+
+          setProductosSeleccionados(productosDelPedido);
+          setClienteId(selectedPedido.idCliente.toString());
+        } catch (error) {
+          console.error('Error al cargar detalles:', error);
+        }
+      }
+    };
+
+    cargarPedidoExistente();
+  }, [selectedPedido]);
 
   const handleAgregarProducto = (producto: Producto) => {
     const productoExistente = productosSeleccionados.find(p => p.idProducto === producto.idProducto);
@@ -89,27 +120,17 @@ const PedidosForm: React.FC<PedidosFormProps> = ({ onSubmit, onCancel }) => {
     e.preventDefault();
     
     try {
-      console.log('🛒 Iniciando proceso de creación de pedido');
-      
-      // 1. Create pedido base
-      const pedidoDTO: PedidoDTO = {
-        idCliente: parseInt(clienteId),
-        estadoPedido: false,
-        subtotal: 0 // Initially 0
-      };
-  
-      console.log('📦 Datos del pedido a crear:', pedidoDTO);
-      const pedidoCreado = await pedidoService.crearPedido(pedidoDTO);
-      console.log('✅ Pedido base creado:', pedidoCreado);
-  
-      // 2. Create detalles
-      console.log('📝 Creando detalles para', productosSeleccionados.length, 'productos');
-      
-      if (pedidoCreado.idPedido) {
+      if (selectedPedido?.idPedido) {
+        // Delete existing details and create new ones
+        const subtotal = productosSeleccionados.reduce((sum, producto) => 
+          sum + (producto.precio * producto.cantidad), 0
+        );
+
+        // Create new details
         for (const producto of productosSeleccionados) {
           const detalle = {
             pedido: {
-              idPedido: pedidoCreado.idPedido
+              idPedido: selectedPedido.idPedido
             },
             producto: {
               idProducto: producto.idProducto
@@ -118,33 +139,79 @@ const PedidosForm: React.FC<PedidosFormProps> = ({ onSubmit, onCancel }) => {
             precioUnitario: producto.precio,
             subtotal: producto.precio * producto.cantidad
           };
-  
-          console.log('📦 Enviando detalle:', detalle);
+
           await pedidoService.crearDetallePedido(detalle);
         }
-  
-        // 3. Update pedido with final subtotal
-        const subtotalFinal = productosSeleccionados.reduce((sum, producto) => 
-          sum + (producto.precio * producto.cantidad), 0
-        );
-  
-        const pedidoActualizado: PedidoDTO = {
-          ...pedidoDTO,
-          idPedido: pedidoCreado.idPedido,
-          subtotal: subtotalFinal
+
+        // Update order total
+        const pedidoActualizado: Pedido = {
+          idPedido: selectedPedido.idPedido,
+          idCliente: selectedPedido.idCliente,
+          estadoPedido: selectedPedido.estadoPedido,
+          subtotal: subtotal,
+          fechaPedido: selectedPedido.fechaPedido || new Date().toISOString()
         };
-  
-        console.log('💰 Actualizando subtotal del pedido:', {
-          id: pedidoCreado.idPedido,
-          subtotal: subtotalFinal
-        });
-  
-        await pedidoService.actualizarSubtotalPedido(pedidoCreado.idPedido, pedidoActualizado);
-        console.log('✅ Subtotal actualizado exitosamente');
+
+        await pedidoService.actualizarSubtotalPedido(selectedPedido.idPedido, pedidoActualizado);
+        onSubmit(pedidoActualizado);
+      } else {
+        console.log('🛒 Iniciando proceso de creación de pedido');
+      
+        // 1. Create pedido base
+        const pedidoDTO: PedidoDTO = {
+          idCliente: parseInt(clienteId),
+          estadoPedido: false,
+          subtotal: 0 // Initially 0
+        };
+    
+        console.log('📦 Datos del pedido a crear:', pedidoDTO);
+        const pedidoCreado = await pedidoService.crearPedido(pedidoDTO);
+        console.log('✅ Pedido base creado:', pedidoCreado);
+    
+        // 2. Create detalles
+        console.log('📝 Creando detalles para', productosSeleccionados.length, 'productos');
+        
+        if (pedidoCreado.idPedido) {
+          for (const producto of productosSeleccionados) {
+            const detalle = {
+              pedido: {
+                idPedido: pedidoCreado.idPedido
+              },
+              producto: {
+                idProducto: producto.idProducto
+              },
+              cantidad: producto.cantidad,
+              precioUnitario: producto.precio,
+              subtotal: producto.precio * producto.cantidad
+            };
+    
+            console.log('📦 Enviando detalle:', detalle);
+            await pedidoService.crearDetallePedido(detalle);
+          }
+    
+          // 3. Update pedido with final subtotal
+          const subtotalFinal = productosSeleccionados.reduce((sum, producto) => 
+            sum + (producto.precio * producto.cantidad), 0
+          );
+    
+          const pedidoActualizado: PedidoDTO = {
+            ...pedidoDTO,
+            subtotal: subtotalFinal,
+            fechaPedido: new Date().toISOString()
+          };
+    
+          console.log('💰 Actualizando subtotal del pedido:', {
+            id: pedidoCreado.idPedido,
+            subtotal: subtotalFinal
+          });
+    
+          await pedidoService.actualizarSubtotalPedido(pedidoCreado.idPedido, pedidoActualizado);
+          console.log('✅ Subtotal actualizado exitosamente');
+        }
+    
+        console.log('✅ Proceso completado exitosamente');
+        onSubmit(pedidoCreado);
       }
-  
-      console.log('✅ Proceso completado exitosamente');
-      onSubmit(pedidoCreado);
   
     } catch (error) {
       console.error('❌ Error en el proceso:', error);
@@ -168,21 +235,29 @@ const PedidosForm: React.FC<PedidosFormProps> = ({ onSubmit, onCancel }) => {
       <Form onSubmit={handleSubmit}>
         <Form.Group className="pedidos-form-select mb-4">
           <Form.Label>Cliente</Form.Label>
-          <Form.Select
-            value={clienteId}
-            onChange={(e) => setClienteId(e.target.value)}
-            required
-          >
-            <option value="">Seleccione un Cliente</option>
-            {clientes.map(cliente => (
-              <option 
-                key={cliente.idCliente} 
-                value={cliente.idCliente}
-              >
-                {`${cliente.idCliente} - ${cliente.nombre}`}
-              </option>
-            ))}
-          </Form.Select>
+          {selectedPedido ? (
+            // Read-only display when editing
+            <div className="form-control-plaintext">
+              {clientes.find(c => c.idCliente === selectedPedido.idCliente)?.nombre || 'Cliente no encontrado'}
+            </div>
+          ) : (
+            // Editable select when creating
+            <Form.Select
+              value={clienteId}
+              onChange={(e) => setClienteId(e.target.value)}
+              required
+            >
+              <option value="">Seleccione un Cliente</option>
+              {clientes.map(cliente => (
+                <option 
+                  key={cliente.idCliente} 
+                  value={cliente.idCliente}
+                >
+                  {`${cliente.idCliente} - ${cliente.nombre}`}
+                </option>
+              ))}
+            </Form.Select>
+          )}
         </Form.Group>
 
         {clienteId && (
