@@ -56,19 +56,22 @@ const PedidosForm: React.FC<PedidosFormProps> = ({ onSubmit, onCancel, selectedP
     const cargarPedidoExistente = async () => {
       if (selectedPedido?.idPedido) {
         try {
-          // Load order details
           const detalles = await pedidoService.obtenerDetallesPedido(selectedPedido.idPedido);
           
-          // Convert details to ProductoSeleccionado format
-          const productosDelPedido = detalles.map(detalle => ({
-            idProducto: detalle.producto.idProducto,
-            nombre: productos.find(p => p.idProducto === detalle.producto.idProducto)?.nombre || '',
-            precio: detalle.precioUnitario,
-            cantidad: detalle.cantidad,
-            disponibilidad: productos.find(p => p.idProducto === detalle.producto.idProducto)?.disponibilidad || 0,
-            descripcion: productos.find(p => p.idProducto === detalle.producto.idProducto)?.descripcion || '',
-            idCatalogo: productos.find(p => p.idProducto === detalle.producto.idProducto)?.idCatalogo || 0
-          }));
+          // Map detalles using productos array for complete product info
+          const productosDelPedido = detalles.map(detalle => {
+            const productoCompleto = productos.find(p => p.idProducto === detalle.producto.idProducto);
+            if (!productoCompleto) {
+              console.warn('⚠️ Producto no encontrado:', detalle.producto.idProducto);
+              return null;
+            }
+            
+            return {
+              ...productoCompleto,
+              cantidad: detalle.cantidad,
+              precio: detalle.precioUnitario
+            };
+          }).filter(Boolean) as ProductoSeleccionado[];
 
           setProductosSeleccionados(productosDelPedido);
           setClienteId(selectedPedido.idCliente.toString());
@@ -79,7 +82,7 @@ const PedidosForm: React.FC<PedidosFormProps> = ({ onSubmit, onCancel, selectedP
     };
 
     cargarPedidoExistente();
-  }, [selectedPedido]);
+  }, [selectedPedido, productos]); // Add productos to dependencies
 
   const handleAgregarProducto = (producto: Producto) => {
     const productoExistente = productosSeleccionados.find(p => p.idProducto === producto.idProducto);
@@ -357,14 +360,16 @@ const PedidosForm: React.FC<PedidosFormProps> = ({ onSubmit, onCancel, selectedP
             type="submit"
             disabled={!clienteId || productosSeleccionados.length === 0}
           >
-            Agregar Pedido
+            {selectedPedido ? 'Actualizar Pedido' : 'Agregar Pedido'}
           </Button>
         </div>
       </Form>
 
       <Modal show={showProductosModal} onHide={() => setShowProductosModal(false)} size="lg">
         <Modal.Header closeButton>
-          <Modal.Title>Seleccionar Productos</Modal.Title>
+          <Modal.Title>
+            {selectedPedido ? 'Modificar Productos' : 'Seleccionar Productos'}
+          </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Table striped bordered hover>
