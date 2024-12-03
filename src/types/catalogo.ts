@@ -6,4 +6,5 @@ export interface Catalogo {
   
     descripcionCatalogo: string;
   
+    url?: string;
   }

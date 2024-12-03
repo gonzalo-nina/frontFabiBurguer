@@ -19,6 +19,7 @@ const CatalogoList = () => {
       setLoading(true);
       const data = await CatalogoService.getAllCatalogos();
       setCatalogos(data);
+      console.log('Catalogos loaded:', data);
     } catch (error) {
       console.error('Error loading catalogos:', error);
       setError('Error al cargar catálogos');

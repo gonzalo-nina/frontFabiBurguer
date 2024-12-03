@@ -9,14 +9,15 @@ interface ClienteFormProps {
   onSave: (cliente: Cliente) => void;
   cliente?: Cliente;
 }
-
+const DEFAULT_URL = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRgWHYGTSvwcmgpuvHXsG3v6olrG51pr-mXSQ&s";
 const ClienteForm = ({ show, onHide, onSave, cliente }: ClienteFormProps) => {
   const [formData, setFormData] = useState<Cliente>({
     idCliente: 0,
     nombre: '',
     email: '',
     telefono: '',
-    direccion: ''
+    direccion: '',
+    url: DEFAULT_URL
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -30,7 +31,8 @@ const ClienteForm = ({ show, onHide, onSave, cliente }: ClienteFormProps) => {
         nombre: '',
         email: '',
         telefono: '',
-        direccion: ''
+        direccion: '',
+        url: DEFAULT_URL
       });
     }
     setErrors({});

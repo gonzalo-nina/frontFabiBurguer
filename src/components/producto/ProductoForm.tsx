@@ -12,6 +12,8 @@ interface ProductoFormProps {
   producto?: Producto;
 }
 
+const DEFAULT_URL = "https://www.idelcosa.com/img/default.jpg";
+
 const ProductoForm = ({ show, onHide, onSave, producto }: ProductoFormProps) => {
   const [formData, setFormData] = useState<Producto>({
     idProducto: 0,
@@ -19,7 +21,8 @@ const ProductoForm = ({ show, onHide, onSave, producto }: ProductoFormProps) => 
     descripcion: '',
     precio: 0,
     disponibilidad: 0,
-    idCatalogo: 0
+    idCatalogo: 0,
+    url: ''
   });
 
   const [catalogos, setCatalogos] = useState<Catalogo[]>([]);
@@ -43,7 +46,8 @@ const ProductoForm = ({ show, onHide, onSave, producto }: ProductoFormProps) => 
         descripcion: '',
         precio: 0,
         disponibilidad: 0,
-        idCatalogo: 0
+        idCatalogo: 0,
+        url: ''
       });
       setErrors({});
     }
@@ -63,7 +67,12 @@ const ProductoForm = ({ show, onHide, onSave, producto }: ProductoFormProps) => 
     e.preventDefault();
     const newErrors = validateForm();
     if (Object.keys(newErrors).length === 0) {
-      onSave(formData);
+      // Si url está vacía, usar la URL por defecto
+      const productoWithUrl = {
+        ...formData,
+        url: formData.url || DEFAULT_URL
+      };
+      onSave(productoWithUrl);
     } else {
       setErrors(newErrors);
     }
@@ -148,6 +157,20 @@ const ProductoForm = ({ show, onHide, onSave, producto }: ProductoFormProps) => 
             </Form.Select>
             <Form.Control.Feedback type="invalid">
               {errors.idCatalogo}
+            </Form.Control.Feedback>
+          </Form.Group>
+
+          <Form.Group className="mb-3">
+            <Form.Label>URL de la imagen</Form.Label>
+            <Form.Control
+              type="url"
+              value={formData.url}
+              onChange={(e) => setFormData({...formData, url: e.target.value})}
+              isInvalid={!!errors.url}
+              placeholder="https://ejemplo.com/imagen.jpg"
+            />
+            <Form.Control.Feedback type="invalid">
+              {errors.url}
             </Form.Control.Feedback>
           </Form.Group>
         </Modal.Body>

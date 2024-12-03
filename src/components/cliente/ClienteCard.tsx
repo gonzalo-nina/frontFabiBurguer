@@ -12,6 +12,12 @@ interface ClienteCardProps {
 const ClienteCard = ({ cliente, onEdit, onDelete }: ClienteCardProps) => {
   return (
     <Card className="h-100">
+      <Card.Img 
+        variant="top" 
+        src={cliente.url}
+        alt={cliente.nombre}
+        style={{ height: '200px', objectFit: 'cover' }}
+      />
       <Card.Body>
         <Card.Title>{cliente.nombre}</Card.Title>
         <div className="mb-3">

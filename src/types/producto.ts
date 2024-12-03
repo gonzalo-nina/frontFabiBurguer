@@ -13,4 +13,6 @@ export interface Producto {
 
   idCatalogo: number;
 
+  url?:string;
+
 }

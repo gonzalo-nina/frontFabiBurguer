@@ -24,12 +24,20 @@ const ProductoCard = ({ producto, onEdit, onDelete }: ProductoCardProps) => {
         setCatalogoNombre('No encontrado');
       }
     };
-
     loadCatalogo();
   }, [producto.idCatalogo]);
 
   return (
     <Card className="h-100">
+      <Card.Img 
+        variant="top" 
+        src={producto.url || 'https://via.placeholder.com/300x200'} 
+        alt={producto.nombre}
+        style={{ height: '200px', objectFit: 'cover' }}
+        onError={(e) => {
+          e.currentTarget.src = 'https://via.placeholder.com/300x200';
+        }}
+      />
       <Card.Body>
         <Card.Title>{producto.nombre}</Card.Title>
         <div className="mb-3">

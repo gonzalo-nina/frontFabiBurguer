@@ -3,6 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { Modal, Form, Button } from 'react-bootstrap';
 import { Catalogo } from '../../types/catalogo';
 
+const DEFAULT_URL = "https://www.idelcosa.com/img/default.jpg";
+
 interface CatalogoFormProps {
   show: boolean;
   onHide: () => void;
@@ -13,7 +15,8 @@ interface CatalogoFormProps {
 const CatalogoForm = ({ show, onHide, onSave, catalogo }: CatalogoFormProps) => {
   const [formData, setFormData] = useState<Catalogo>({
     nombreCatalogo: '',
-    descripcionCatalogo: ''
+    descripcionCatalogo: '',
+    url: ''
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -22,7 +25,8 @@ const CatalogoForm = ({ show, onHide, onSave, catalogo }: CatalogoFormProps) => 
     if (show) {
       setFormData(catalogo || {
         nombreCatalogo: '',
-        descripcionCatalogo: ''
+        descripcionCatalogo: '',
+        url: ''
       });
       setErrors({});
     }
@@ -39,7 +43,12 @@ const CatalogoForm = ({ show, onHide, onSave, catalogo }: CatalogoFormProps) => 
     e.preventDefault();
     const newErrors = validateForm();
     if (Object.keys(newErrors).length === 0) {
-      onSave(formData);
+      // Asegurar que haya una URL por defecto si no se proporciona una
+      const catalogoWithUrl = {
+        ...formData,
+        url: formData.url || DEFAULT_URL
+      };
+      onSave(catalogoWithUrl);
     } else {
       setErrors(newErrors);
     }
@@ -76,6 +85,20 @@ const CatalogoForm = ({ show, onHide, onSave, catalogo }: CatalogoFormProps) => 
             />
             <Form.Control.Feedback type="invalid">
               {errors.descripcionCatalogo}
+            </Form.Control.Feedback>
+          </Form.Group>
+
+          <Form.Group className="mb-3">
+            <Form.Label>URL de la imagen</Form.Label>
+            <Form.Control
+              type="url"
+              value={formData.url}
+              onChange={(e) => setFormData({...formData, url: e.target.value})}
+              isInvalid={!!errors.url}
+              placeholder="https://ejemplo.com/imagen.jpg"
+            />
+            <Form.Control.Feedback type="invalid">
+              {errors.url}
             </Form.Control.Feedback>
           </Form.Group>
         </Modal.Body>

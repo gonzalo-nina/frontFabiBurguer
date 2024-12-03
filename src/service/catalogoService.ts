@@ -1,5 +1,5 @@
 // src/service/catalogoService.ts
-import axios from 'axios';
+import axios from '../config/axios';
 import { Catalogo } from '../types/catalogo';
 
 const API_URL = '/api/v1/catalogos';
