@@ -5,6 +5,7 @@ import ClienteCard from './ClienteCard';
 import ClienteForm from './ClienteForm';
 import { Cliente } from '../../types/cliente';
 import ClienteService from '../../service/clienteService';
+import pedidoService from '../../service/pedidoService';
 
 const ClienteList = () => {
   const [clientes, setClientes] = useState<Cliente[]>([]);
@@ -42,14 +43,25 @@ const ClienteList = () => {
   };
 
   const handleDelete = async (id: number) => {
-    if (window.confirm('¿Está seguro de eliminar este cliente?')) {
-      try {
+    try {
+      // Obtener todos los pedidos
+      const pedidos = await pedidoService.listarPedidos();
+      
+      // Verificar si algún pedido está asociado al cliente
+      const tienePedidos = pedidos.some(pedido => pedido.idCliente === id);
+  
+      if (tienePedidos) {
+        alert('No se puede eliminar el cliente porque tiene pedidos asociados');
+        return;
+      }
+  
+      if (window.confirm('¿Está seguro de eliminar este cliente?')) {
         await ClienteService.deleteCliente(id);
         loadClientes();
-      } catch (error) {
-        console.error('Error deleting cliente:', error);
-        alert('Error al eliminar cliente');
       }
+    } catch (error) {
+      console.error('Error deleting cliente:', error);
+      alert('Error al eliminar cliente');
     }
   };
 

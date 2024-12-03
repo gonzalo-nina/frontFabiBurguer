@@ -155,6 +155,21 @@ class PedidoService {
       throw error;
     }
   }
+
+  // Add new method
+  async verificarClienteEnPedidos(idCliente: number): Promise<boolean> {
+    try {
+      console.log(`${API_URL}/cliente/${idCliente}/existe`)
+      const response = await axios.get(
+        `${API_URL}/cliente/${idCliente}/existe`,
+        this.getAuthHeader()
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error al verificar cliente en pedidos:', error);
+      throw error;
+    }
+  }
 }
 
 export default new PedidoService();
