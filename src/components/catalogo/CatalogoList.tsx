@@ -1,8 +1,8 @@
 // src/components/catalogo/CatalogoList.tsx
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Button } from 'react-bootstrap';
-import CatalogoCard from './catalogoCard';
-import CatalogoForm from './catalogoForm';
+import CatalogoCard from './CatalogoCard';
+import CatalogoForm from './CatalogoForm';
 import { Catalogo } from '../../types/catalogo';
 import CatalogoService from '../../service/catalogoService';
 

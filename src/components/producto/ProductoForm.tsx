@@ -2,6 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Form, Button } from 'react-bootstrap';
 import { Producto } from '../../types/producto';
+import { Catalogo } from '../../types/catalogo';
+import CatalogoService from '../../service/catalogoService';
 
 interface ProductoFormProps {
   show: boolean;
@@ -20,10 +22,21 @@ const ProductoForm = ({ show, onHide, onSave, producto }: ProductoFormProps) => 
     idCatalogo: 0
   });
 
+  const [catalogos, setCatalogos] = useState<Catalogo[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
+    const loadCatalogos = async () => {
+      try {
+        const data = await CatalogoService.getAllCatalogos();
+        setCatalogos(data);
+      } catch (error) {
+        console.error('Error loading catalogos:', error);
+      }
+    };
+
     if (show) {
+      loadCatalogos();
       setFormData(producto || {
         idProducto: 0,
         nombre: '',
@@ -34,7 +47,7 @@ const ProductoForm = ({ show, onHide, onSave, producto }: ProductoFormProps) => 
       });
       setErrors({});
     }
-  }, [producto, show]);
+  }, [show, producto]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -42,7 +55,7 @@ const ProductoForm = ({ show, onHide, onSave, producto }: ProductoFormProps) => 
     if (!formData.descripcion) newErrors.descripcion = 'La descripción es requerida';
     if (formData.precio < 0) newErrors.precio = 'El precio debe ser mayor o igual a 0';
     if (formData.disponibilidad < 0) newErrors.disponibilidad = 'La disponibilidad debe ser mayor o igual a 0';
-    if (formData.idCatalogo <= 0) newErrors.idCatalogo = 'Debe seleccionar un catálogo válido';
+    if (!formData.idCatalogo) newErrors.idCatalogo = 'Debe seleccionar un catálogo';
     return newErrors;
   };
 
@@ -120,14 +133,19 @@ const ProductoForm = ({ show, onHide, onSave, producto }: ProductoFormProps) => 
           </Form.Group>
 
           <Form.Group className="mb-3">
-            <Form.Label>ID Catálogo</Form.Label>
-            <Form.Control
-              type="number"
-              min="1"
+            <Form.Label>Catálogo</Form.Label>
+            <Form.Select
               value={formData.idCatalogo}
               onChange={(e) => setFormData({...formData, idCatalogo: parseInt(e.target.value)})}
               isInvalid={!!errors.idCatalogo}
-            />
+            >
+              <option value="">Seleccione un catálogo</option>
+              {catalogos.map(catalogo => (
+                <option key={catalogo.idCatalogo} value={catalogo.idCatalogo}>
+                  {catalogo.nombreCatalogo}
+                </option>
+              ))}
+            </Form.Select>
             <Form.Control.Feedback type="invalid">
               {errors.idCatalogo}
             </Form.Control.Feedback>
