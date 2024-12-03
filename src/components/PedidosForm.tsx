@@ -4,9 +4,11 @@ import clienteService from '../service/clienteService';
 import productoService from '../service/productoService';
 import { Cliente } from '../types/cliente';
 import { Producto } from '../types/producto';
-import { Pedido, DetallePedido } from '../types/Pedido';
+import { Pedido, DetallePedido, PedidoDTO } from '../types/Pedido';
 import { X } from 'lucide-react';
 import '../styles/ProductCards.css';
+import pedidoService from '../service/pedidoService';
+
 
 interface ProductoSeleccionado extends Producto {
   cantidad: number;
@@ -82,41 +84,42 @@ const PedidosForm: React.FC<PedidosFormProps> = ({ onSubmit, onCancel }) => {
     );
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!clienteId.trim()) {
-      console.error('Error: Debe seleccionar un cliente');
-      return;
+    if (!clienteId || productosSeleccionados.length === 0) return;
+
+    try {
+      // Crear pedido
+      const pedidoDTO: PedidoDTO = {
+        idCliente: parseInt(clienteId),
+        estadoPedido: false,
+        subtotal: total
+      };
+
+      const pedidoCreado = await pedidoService.crearPedido(pedidoDTO);
+
+      // Crear detalles del pedido
+      for (const producto of productosSeleccionados) {
+        const detalle: DetallePedido = {
+          idPedido: pedidoCreado.idPedido,
+          producto: {
+            idProducto: producto.id!,
+            nombre: producto.nombre,
+            precio: producto.precio
+          },
+          cantidad: producto.cantidad,
+          precioUnitario: producto.precio,
+          subtotal: producto.precio * producto.cantidad
+        };
+
+        await pedidoService.crearDetallePedido(detalle);
+      }
+
+      onSubmit(pedidoCreado);
+    } catch (error) {
+      console.error('Error al crear pedido:', error);
     }
-
-    const clienteIdNumber = parseInt(clienteId);
-    if (isNaN(clienteIdNumber)) {
-      console.error(`Error: ID de cliente inválido: ${clienteId}`);
-      return;
-    }
-
-    if (productosSeleccionados.length === 0) {
-      console.error('Error: No hay productos seleccionados');
-      return;
-    }
-
-    const pedido: Pedido = {
-      clienteId: clienteIdNumber,
-      fecha: new Date().toISOString(),
-      total,
-      estado: false,
-      detallePedido: productosSeleccionados
-        .filter((p): p is ProductoSeleccionado & { id: number } => p.id !== undefined)
-        .map(p => ({
-          productoId: p.id,
-          cantidad: p.cantidad,
-          precioUnitario: p.precio,
-          subtotal: p.precio * p.cantidad
-        }))
-    };
-
-    onSubmit(pedido);
   };
 
   const updateCantidad = (productoId: number, nuevaCantidad: number): void => {

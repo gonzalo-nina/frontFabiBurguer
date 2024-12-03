@@ -14,7 +14,11 @@ const PedidosSection = () => {
     try {
       setLoading(true);
       const data = await pedidoService.listarPedidos();
-      setPedidos(data);
+      const transformedData = data.map(pedido => ({
+        ...pedido,
+        fechaPedido: pedido.fechaPedido || ''
+      }));
+      setPedidos(transformedData);
     } catch (error) {
       setError('Error al cargar los pedidos');
       console.error('Error:', error);
@@ -104,14 +108,14 @@ const PedidosSection = () => {
             {pedidos.map((pedido) => (
               <tr key={pedido.idPedido}>
                 <td>{pedido.idPedido}</td>
-                <td>{new Date(pedido.fecha).toLocaleDateString()}</td>
-                <td>{pedido.clienteId}</td>
-                <td>${pedido.total.toFixed(2)}</td>
+                <td>{new Date(pedido.fechaPedido).toLocaleDateString()}</td>
+                <td>{pedido.idCliente}</td>
+                <td>S/. {pedido.subtotal.toFixed(2)}</td>
                 <td>
                   <Form.Check
                     type="switch"
                     id={`estado-${pedido.idPedido}`}
-                    checked={pedido.estado}
+                    checked={pedido.estadoPedido}
                     onChange={(e) => pedido.idPedido && 
                       handleEstado(pedido.idPedido, e.target.checked)}
                   />

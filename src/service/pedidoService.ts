@@ -1,12 +1,23 @@
 import axios from 'axios';
-import { Pedido } from '../types/Pedido';
+import { Pedido, PedidoDTO, DetallePedido } from '../types/Pedido';
+import auth from './auth';
 
 const API_URL = '/api/v1/pedidos';
+const DETALLE_API_URL = '/api/v1/detalles-pedido';
 
 class PedidoService {
-  async listarPedidos(): Promise<Pedido[]> {
+  private getAuthHeader() {
+    const user = auth.getCurrentUser();
+    return {
+      headers: {
+        Authorization: `Bearer ${user?.token}`
+      }
+    };
+  }
+
+  async listarPedidos(): Promise<PedidoDTO[]> {
     try {
-      const response = await axios.get(API_URL);
+      const response = await axios.get(API_URL, this.getAuthHeader());
       return response.data;
     } catch (error) {
       console.error('Error al obtener pedidos:', error);
@@ -24,12 +35,22 @@ class PedidoService {
     }
   }
 
-  async crearPedido(pedido: Pedido): Promise<Pedido> {
+  async crearPedido(pedido: PedidoDTO): Promise<Pedido> {
     try {
-      const response = await axios.post(API_URL, pedido);
+      const response = await axios.post(API_URL, pedido, this.getAuthHeader());
       return response.data;
     } catch (error) {
       console.error('Error al crear pedido:', error);
+      throw error;
+    }
+  }
+
+  async crearDetallePedido(detalle: DetallePedido): Promise<DetallePedido> {
+    try {
+      const response = await axios.post(`${DETALLE_API_URL}/crear`, detalle, this.getAuthHeader());
+      return response.data;
+    } catch (error) {
+      console.error('Error al crear detalle del pedido:', error);
       throw error;
     }
   }
@@ -44,11 +65,19 @@ class PedidoService {
     }
   }
 
+  async actualizarSubtotalPedido(id: number, pedido: PedidoDTO): Promise<Pedido> {
+    try {
+      const response = await axios.put(`${API_URL}/${id}`, pedido, this.getAuthHeader());
+      return response.data;
+    } catch (error) {
+      console.error('Error al actualizar subtotal del pedido:', error);
+      throw error;
+    }
+  }
+
   async actualizarEstadoPedido(id: number, estado: boolean): Promise<Pedido> {
     try {
-      const response = await axios.put(`${API_URL}/${id}/estado`, null, {
-        params: { estado }
-      });
+      const response = await axios.put(`${API_URL}/${id}/estado?estado=${estado}`, null, this.getAuthHeader());
       return response.data;
     } catch (error) {
       console.error('Error al actualizar estado:', error);
@@ -58,7 +87,7 @@ class PedidoService {
 
   async eliminarPedido(id: number): Promise<void> {
     try {
-      await axios.delete(`${API_URL}/${id}`);
+      await axios.delete(`${API_URL}/${id}`, this.getAuthHeader());
     } catch (error) {
       console.error('Error al eliminar pedido:', error);
       throw error;
