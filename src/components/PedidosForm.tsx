@@ -91,30 +91,39 @@ const PedidosForm: React.FC<PedidosFormProps> = ({ onSubmit, onCancel, selectedP
 
   useEffect(() => {
     const disponibilidadInicial = productos.reduce((acc, producto) => {
-      acc[producto.idProducto] = producto.disponibilidad;
+      const cantidadSeleccionada = productosSeleccionados
+        .filter(p => p.idProducto === producto.idProducto)
+        .reduce((sum, p) => sum + p.cantidad, 0);
+      acc[producto.idProducto] = producto.disponibilidad - cantidadSeleccionada;
       return acc;
     }, {} as Record<number, number>);
     setDisponibilidadActual(disponibilidadInicial);
-  }, [productos]);
+  }, [productos, productosSeleccionados]);
 
   const handleAgregarProducto = (producto: Producto) => {
     const productoExistente = productosSeleccionados.find(p => p.idProducto === producto.idProducto);
-    const disponibilidadBase = producto.disponibilidad;
-    const otrosProductosSeleccionados = productosSeleccionados.filter(p => p.idProducto !== producto.idProducto);
-    const cantidadOtrosProductos = otrosProductosSeleccionados.reduce((sum, p) => sum + p.cantidad, 0);
-    const disponibilidadMaxima = disponibilidadBase - cantidadOtrosProductos;
+    const disponibilidadRestante = producto.disponibilidad - (productoExistente?.cantidad || 0);
 
     if (productoExistente) {
-      const nuevaCantidad = productoExistente.cantidad + 1;
-      if (nuevaCantidad <= disponibilidadMaxima) {
-        updateCantidad(producto.idProducto, nuevaCantidad);
-      }
-    } else {
-      if (disponibilidadMaxima > 0) {
-        setProductosSeleccionados([...productosSeleccionados, { ...producto, cantidad: 1 }]);
+      if (productoExistente.cantidad < producto.disponibilidad) {
+        const nuevaCantidad = productoExistente.cantidad + 1;
+        setProductosSeleccionados(prev => 
+          prev.map(p => p.idProducto === producto.idProducto 
+            ? { ...p, cantidad: nuevaCantidad }
+            : p
+          )
+        );
         setDisponibilidadActual(prev => ({
           ...prev,
-          [producto.idProducto]: disponibilidadMaxima - 1
+          [producto.idProducto]: disponibilidadRestante - 1
+        }));
+      }
+    } else {
+      if (disponibilidadRestante > 0) {
+        setProductosSeleccionados(prev => [...prev, { ...producto, cantidad: 1 }]);
+        setDisponibilidadActual(prev => ({
+          ...prev,
+          [producto.idProducto]: producto.disponibilidad - 1
         }));
       }
     }
@@ -270,20 +279,17 @@ const PedidosForm: React.FC<PedidosFormProps> = ({ onSubmit, onCancel, selectedP
   };
 
   const updateCantidad = (productoId: number, nuevaCantidad: number): void => {
+    const producto = productos.find(p => p.idProducto === productoId);
+    if (!producto) return;
+
     setProductosSeleccionados(prev => {
       const productoActual = prev.find(p => p.idProducto === productoId);
       if (!productoActual) return prev;
 
-      const disponibilidadBase = productos.find(p => p.idProducto === productoId)?.disponibilidad || 0;
-      const otrosProductosSeleccionados = prev.filter(p => p.idProducto !== productoId);
-      const cantidadOtrosProductos = otrosProductosSeleccionados.reduce((sum, p) => sum + p.cantidad, 0);
-      const disponibilidadMaxima = disponibilidadBase - cantidadOtrosProductos;
-
-      if (nuevaCantidad > 0 && nuevaCantidad <= disponibilidadMaxima) {
-        // Actualizar disponibilidad
+      if (nuevaCantidad > 0 && nuevaCantidad <= producto.disponibilidad) {
         setDisponibilidadActual(prevDisp => ({
           ...prevDisp,
-          [productoId]: disponibilidadBase - (cantidadOtrosProductos + nuevaCantidad)
+          [productoId]: producto.disponibilidad - nuevaCantidad
         }));
 
         return prev.map(p =>
@@ -297,21 +303,15 @@ const PedidosForm: React.FC<PedidosFormProps> = ({ onSubmit, onCancel, selectedP
   };
 
   const handleRemoveProduct = (id: number) => {
-    const productoEliminado = productosSeleccionados.find(p => p.idProducto === id);
-    if (productoEliminado) {
-      // Restaurar disponibilidad
-      const disponibilidadBase = productos.find(p => p.idProducto === id)?.disponibilidad || 0;
-      const otrosProductos = productosSeleccionados.filter(p => p.idProducto !== id);
-      const cantidadOtrosProductos = otrosProductos.reduce((sum, p) => sum + p.cantidad, 0);
-      
-      setDisponibilidadActual(prev => ({
-        ...prev,
-        [id]: disponibilidadBase - cantidadOtrosProductos
-      }));
-      
-      // Eliminar producto de seleccionados
-      setProductosSeleccionados(prev => prev.filter(p => p.idProducto !== id));
-    }
+    const producto = productos.find(p => p.idProducto === id);
+    if (!producto) return;
+
+    setDisponibilidadActual(prev => ({
+      ...prev,
+      [id]: producto.disponibilidad
+    }));
+    
+    setProductosSeleccionados(prev => prev.filter(p => p.idProducto !== id));
   };
 
   return (
@@ -320,12 +320,10 @@ const PedidosForm: React.FC<PedidosFormProps> = ({ onSubmit, onCancel, selectedP
         <Form.Group className="pedidos-form-select mb-4">
           <Form.Label>Cliente</Form.Label>
           {selectedPedido ? (
-            // Read-only display when editing
             <div className="form-control-plaintext">
               {clientes.find(c => c.idCliente === selectedPedido.idCliente)?.nombre || 'Cliente no encontrado'}
             </div>
           ) : (
-            // Editable select when creating
             <Form.Select
               value={clienteId}
               onChange={(e) => setClienteId(e.target.value)}
@@ -333,10 +331,7 @@ const PedidosForm: React.FC<PedidosFormProps> = ({ onSubmit, onCancel, selectedP
             >
               <option value="">Seleccione un Cliente</option>
               {clientes.map(cliente => (
-                <option 
-                  key={cliente.idCliente} 
-                  value={cliente.idCliente}
-                >
+                <option key={cliente.idCliente} value={cliente.idCliente}>
                   {`${cliente.idCliente} - ${cliente.nombre}`}
                 </option>
               ))}
@@ -351,16 +346,43 @@ const PedidosForm: React.FC<PedidosFormProps> = ({ onSubmit, onCancel, selectedP
           </div>
         )}
 
-        <Button
-          variant="success"
-          className="mb-3 w-100"
-          onClick={() => setShowProductosModal(true)}
-        >
-          + Agregar Productos
-        </Button>
+        <div className="productos-section mb-4">
+          <h5>Productos Disponibles</h5>
+          <Table striped bordered hover>
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Precio</th>
+                <th>Disponibilidad</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {productos.map(producto => (
+                <tr key={producto.idProducto}>
+                  <td>{producto.nombre}</td>
+                  <td>{producto.descripcion}</td>
+                  <td>S/. {producto.precio}</td>
+                  <td>{disponibilidadActual[producto.idProducto] || 0}</td>
+                  <td>
+                    <Button
+                      variant="success"
+                      size="sm"
+                      onClick={() => handleAgregarProducto(producto)}
+                      disabled={disponibilidadActual[producto.idProducto] <= 0}
+                    >
+                      +
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        </div>
 
         {productosSeleccionados.length > 0 && (
-          <div className="mb-3">
+          <div className="mb-4">
             <h5>Productos Seleccionados</h5>
             <div className="productos-grid">
               {productosSeleccionados.map((producto) => (
@@ -428,54 +450,7 @@ const PedidosForm: React.FC<PedidosFormProps> = ({ onSubmit, onCancel, selectedP
           </Button>
         </div>
       </Form>
-
-      <Modal show={showProductosModal} onHide={() => setShowProductosModal(false)} size="lg">
-        <Modal.Header closeButton>
-          <Modal.Title>
-            {selectedPedido ? 'Modificar Productos' : 'Seleccionar Productos'}
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Table striped bordered hover>
-            <thead>
-              <tr>
-                <th>Nombre</th>
-                <th>Descripción</th>
-                <th>Precio</th>
-                <th>Disponibilidad</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {productos.map(producto => (
-                <tr key={producto.idProducto}>
-                  <td>{producto.nombre}</td>
-                  <td>{producto.descripcion}</td>
-                  <td>S/. {producto.precio}</td>
-                  <td>{disponibilidadActual[producto.idProducto] || 0}</td>
-                  <td>
-                    <Button
-                      variant="success"
-                      size="sm"
-                      onClick={() => handleAgregarProducto(producto)}
-                      disabled={disponibilidadActual[producto.idProducto] <= 0}
-                    >
-                      +
-                    </Button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="primary" onClick={() => setShowProductosModal(false)}>
-            Continuar
-          </Button>
-        </Modal.Footer>
-      </Modal>
-
-      </div>
+    </div>
   );
 };
 
