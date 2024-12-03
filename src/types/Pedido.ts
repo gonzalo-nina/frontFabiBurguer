@@ -8,16 +8,15 @@ export interface Pedido {
 }
 
 export interface DetallePedido {
-    idDetallePedido?: number;
-    idPedido?: number;
-    producto: {
-        idProducto: number;
-        nombre: string;
-        precio: number;
-    };
-    cantidad: number;
-    precioUnitario: number;
-    subtotal: number;
+  pedido: {
+      idPedido: number;
+  };
+  producto: {
+      idProducto: number;
+  };
+  cantidad: number;
+  precioUnitario: number;
+  subtotal: number;
 }
 
 export interface PedidoDTO {

@@ -50,12 +50,12 @@ const PedidosForm: React.FC<PedidosFormProps> = ({ onSubmit, onCancel }) => {
   }, [productosSeleccionados]);
 
   const handleAgregarProducto = (producto: Producto) => {
-    const productoExistente = productosSeleccionados.find(p => p.id === producto.id);
+    const productoExistente = productosSeleccionados.find(p => p.idProducto === producto.idProducto);
     
     if (productoExistente) {
       if (productoExistente.cantidad < producto.disponibilidad) {
         setProductosSeleccionados(productosSeleccionados.map(p =>
-          p.id === producto.id ? { ...p, cantidad: p.cantidad + 1 } : p
+          p.idProducto === producto.idProducto ? { ...p, cantidad: p.cantidad + 1 } : p
         ));
       }
     } else {
@@ -67,7 +67,7 @@ const PedidosForm: React.FC<PedidosFormProps> = ({ onSubmit, onCancel }) => {
 
   const handleAjustarCantidad = (productoId: number, incremento: number) => {
     setProductosSeleccionados(productosSeleccionados.map(p => {
-      if (p.id === productoId) {
+      if (p.idProducto === productoId) {
         const nuevaCantidad = p.cantidad + incremento;
         if (nuevaCantidad > 0 && nuevaCantidad <= p.disponibilidad) {
           return { ...p, cantidad: nuevaCantidad };
@@ -80,51 +80,72 @@ const PedidosForm: React.FC<PedidosFormProps> = ({ onSubmit, onCancel }) => {
 
   const handleRemoveProduct = (id: number) => {
     setProductosSeleccionados(prev => 
-      prev.filter(p => p.id !== id)
+      prev.filter(p => p.idProducto !== id)
     );
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!clienteId || productosSeleccionados.length === 0) return;
-
     try {
+      console.log('🛒 Iniciando proceso de creación de pedido');
+      
+      if (!clienteId) {
+        console.error('❌ No hay cliente seleccionado');
+        return;
+      }
+  
+      if (productosSeleccionados.length === 0) {
+        console.error('❌ No hay productos seleccionados');
+        return;
+      }
+  
       // Crear pedido
       const pedidoDTO: PedidoDTO = {
         idCliente: parseInt(clienteId),
         estadoPedido: false,
         subtotal: total
       };
-
+  
+      console.log('📦 Datos del pedido a crear:', pedidoDTO);
+  
       const pedidoCreado = await pedidoService.crearPedido(pedidoDTO);
-
-      // Crear detalles del pedido
+      console.log('✅ Pedido base creado:', pedidoCreado);
+  
+      // Crear detalles
+      console.log('📝 Iniciando creación de detalles para productos:', productosSeleccionados.length);
+  
       for (const producto of productosSeleccionados) {
+        console.log('📦 Preparando detalle para producto:', producto);
+
         const detalle: DetallePedido = {
-          idPedido: pedidoCreado.idPedido,
+          pedido: {
+            idPedido: pedidoCreado.idPedido!
+          },
           producto: {
-            idProducto: producto.id!,
-            nombre: producto.nombre,
-            precio: producto.precio
+            idProducto: producto.idProducto
           },
           cantidad: producto.cantidad,
           precioUnitario: producto.precio,
           subtotal: producto.precio * producto.cantidad
         };
-
+  
+        console.log('📦 Enviando detalle:', detalle);
         await pedidoService.crearDetallePedido(detalle);
       }
-
+  
+      console.log('✅ Proceso completado exitosamente');
       onSubmit(pedidoCreado);
+  
     } catch (error) {
-      console.error('Error al crear pedido:', error);
+      console.error('❌ Error en el proceso de creación:', error);
+      // Aquí podrías agregar lógica para mostrar el error al usuario
     }
   };
 
   const updateCantidad = (productoId: number, nuevaCantidad: number): void => {
     setProductosSeleccionados(prev => prev.map(producto => {
-      if (producto.id === productoId) {
+      if (producto.idProducto === productoId) {
         if (nuevaCantidad > 0 && nuevaCantidad <= producto.disponibilidad) {
           return { ...producto, cantidad: nuevaCantidad };
         }
@@ -183,10 +204,10 @@ const PedidosForm: React.FC<PedidosFormProps> = ({ onSubmit, onCancel }) => {
             <h5>Productos Seleccionados</h5>
             <div className="productos-grid">
               {productosSeleccionados.map((producto) => (
-                <div key={producto.id} className="producto-card">
+                <div key={producto.idProducto} className="producto-card">
                   <button 
                     className="remove-button"
-                    onClick={() => handleRemoveProduct(producto.id!)}
+                    onClick={() => handleRemoveProduct(producto.idProducto!)}
                     aria-label="Remove product"
                   >
                     <X className="x-icon" size={16} strokeWidth={2} />
@@ -203,7 +224,7 @@ const PedidosForm: React.FC<PedidosFormProps> = ({ onSubmit, onCancel }) => {
                       <Button 
                         size="sm" 
                         variant="outline-secondary"
-                        onClick={() => updateCantidad(producto.id!, Math.max(1, producto.cantidad - 1))}
+                        onClick={() => updateCantidad(producto.idProducto!, Math.max(1, producto.cantidad - 1))}
                       >
                         -
                       </Button>
@@ -211,7 +232,7 @@ const PedidosForm: React.FC<PedidosFormProps> = ({ onSubmit, onCancel }) => {
                       <Button
                         size="sm"
                         variant="outline-secondary" 
-                        onClick={() => updateCantidad(producto.id!, Math.min(producto.disponibilidad, producto.cantidad + 1))}
+                        onClick={() => updateCantidad(producto.idProducto!, Math.min(producto.disponibilidad, producto.cantidad + 1))}
                       >
                         +
                       </Button>
@@ -265,7 +286,7 @@ const PedidosForm: React.FC<PedidosFormProps> = ({ onSubmit, onCancel }) => {
             </thead>
             <tbody>
               {productos.map(producto => (
-                <tr key={producto.id}>
+                <tr key={producto.idProducto}>
                   <td>{producto.nombre}</td>
                   <td>{producto.descripcion}</td>
                   <td>S/. {producto.precio}</td>
