@@ -21,7 +21,7 @@ class PedidoService {
 
   async listarPedidos(): Promise<PedidoDTO[]> {
     try {
-      const response = await axios.get(API_URL, this.getAuthHeader());
+      const response = await axios.get(`${API_URL}/estado-false`, this.getAuthHeader());
       return response.data;
     } catch (error) {
       console.error('Error al obtener pedidos:', error);
