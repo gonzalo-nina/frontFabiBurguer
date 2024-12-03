@@ -48,13 +48,13 @@ const PedidosSection = () => {
   const handlePedido = async (pedido: Pedido) => {
     try {
       setLoading(true);
+      // Si es un pedido existente (edición)
       if (selectedPedido?.idPedido) {
         await pedidoService.actualizarPedido(selectedPedido.idPedido, pedido);
-      } else {
-        await pedidoService.crearPedido(pedido);
       }
+      // NO necesitamos crear el pedido aquí porque ya fue creado en PedidosForm
       setShowModal(false);
-      cargarPedidos();
+      await cargarPedidos();
     } catch (error) {
       setError('Error al guardar el pedido');
       console.error('Error:', error);

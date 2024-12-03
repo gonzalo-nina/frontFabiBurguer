@@ -88,19 +88,21 @@ class AuthService {
   }
 
   getCurrentUser(): usuario | null {
-    const userStr = localStorage.getItem('user');
-    if (userStr) {
-      const user: usuario = JSON.parse(userStr);
-      console.log('📱 Usuario actual recuperado:', {
-        email: user.email,
-        usuario: user.usuario,
-        rol: user.rol,
-      });
-      this.setAuthHeader(user.token);
-      return user;
+    try {
+      const userStr = localStorage.getItem('user');
+      if (userStr) {
+        const user = JSON.parse(userStr);
+        console.log('🔑 Token actual:', {
+          exists: !!user.token,
+          preview: user.token?.substring(0, 20)
+        });
+        return user;
+      }
+      return null;
+    } catch (error) {
+      console.error('Error getting current user:', error);
+      return null;
     }
-    console.log('⚠️ No hay usuario en localStorage');
-    return null;
   }
 
   private setAuthHeader(token: string) {

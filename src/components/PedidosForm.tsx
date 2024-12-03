@@ -8,6 +8,7 @@ import { Pedido, DetallePedido, PedidoDTO } from '../types/Pedido';
 import { X } from 'lucide-react';
 import '../styles/ProductCards.css';
 import pedidoService from '../service/pedidoService';
+import auth from '../service/auth'; // Import auth service
 
 
 interface ProductoSeleccionado extends Producto {
@@ -88,6 +89,13 @@ const PedidosForm: React.FC<PedidosFormProps> = ({ onSubmit, onCancel }) => {
     e.preventDefault();
     
     try {
+      const user = auth.getCurrentUser();
+      if (!user) {
+        console.error('❌ No authenticated user found');
+        // Handle unauthenticated state
+        return;
+      }
+
       console.log('🛒 Iniciando proceso de creación de pedido');
       
       if (!clienteId) {
