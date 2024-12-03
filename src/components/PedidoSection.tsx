@@ -1,14 +1,21 @@
 import { useState, useEffect } from 'react';
 import { Table, Button, Modal, Form, Alert } from 'react-bootstrap';
 import pedidoService from '../service/pedidoService';
-import { Pedido } from '../types/Pedido';
-import PedidosForm from './PedidosForm'; 
+import { Pedido, DetallePedido } from '../types/Pedido';
+import PedidosForm from './PedidosForm';
+import clienteService from '../service/clienteService';
+import { Cliente } from '../types/cliente';
+import productoService from '../service/productoService';
+import { Producto } from '../types/producto';
+
 const PedidosSection = () => {
     const [pedidos, setPedidos] = useState<Pedido[]>([]);
     const [selectedPedido, setSelectedPedido] = useState<Pedido | null>(null);
     const [showModal, setShowModal] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [showViewModal, setShowViewModal] = useState(false);
+    const [selectedPedidoView, setSelectedPedidoView] = useState<Pedido | null>(null);
 
   const cargarPedidos = async () => {
     try {
@@ -72,6 +79,63 @@ const PedidosSection = () => {
       console.error('Error:', error);
     }
   };
+
+  const PedidoVisualizacion: React.FC<{ pedido: Pedido | null }> = ({ pedido }) => {
+    const [detalles, setDetalles] = useState<DetallePedido[]>([]);
+    const [cliente, setCliente] = useState<Cliente | null>(null);
+    const [productos, setProductos] = useState<Producto[]>([]);
+  
+    useEffect(() => {
+      const cargarDatos = async () => {
+        if (pedido?.idPedido) {
+          try {
+            const [detallesData, clienteData, productosData] = await Promise.all([
+              pedidoService.obtenerDetallesPedido(pedido.idPedido),
+              clienteService.getClienteById(pedido.idCliente),
+              productoService.getAllProductos()
+            ]);
+  
+            setDetalles(detallesData);
+            setCliente(clienteData);
+            setProductos(productosData);
+          } catch (error) {
+            console.error('Error al cargar datos:', error);
+          }
+        }
+      };
+      cargarDatos();
+    }, [pedido]);
+  
+    const getProductoNombre = (idProducto: number) => {
+      const producto = productos.find(p => p.idProducto === idProducto);
+      return producto?.nombre || 'Producto no encontrado';
+    };
+  
+    return (
+      <div>
+        <h5 className="mb-4">Cliente: {cliente?.nombre || 'Cargando...'}</h5>
+        <h6>Productos:</h6>
+        <div className="productos-grid">
+          {detalles.map(detalle => (
+            <div key={detalle.idDetallePedido} className="producto-card">
+              <div className="producto-header">
+                <h3 className="producto-title">
+                  {getProductoNombre(detalle.producto.idProducto)}
+                </h3>
+              </div>
+              <div className="producto-cantidad">
+                <span>Cantidad: {detalle.cantidad}</span>
+              </div>
+              <div className="producto-subtotal">
+                <span>Subtotal:</span>
+                <span>S/. {detalle.subtotal.toFixed(2)}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
   
   return (
     <div className="container mt-4">
@@ -133,6 +197,17 @@ const PedidosSection = () => {
                     Editar
                   </Button>
                   <Button
+                    variant="primary"
+                    size="sm"
+                    className="me-2"
+                    onClick={() => {
+                      setSelectedPedidoView(pedido);
+                      setShowViewModal(true);
+                    }}
+                  >
+                    Visualizar
+                  </Button>
+                  <Button
                     variant="danger"
                     size="sm"
                     onClick={() => pedido.idPedido && handleDelete(pedido.idPedido)}
@@ -158,6 +233,15 @@ const PedidosSection = () => {
       onCancel={() => setShowModal(false)}
       selectedPedido={selectedPedido}
     />
+  </Modal.Body>
+</Modal>
+
+<Modal show={showViewModal} onHide={() => setShowViewModal(false)} size="lg">
+  <Modal.Header closeButton>
+    <Modal.Title>Detalle del Pedido</Modal.Title>
+  </Modal.Header>
+  <Modal.Body>
+    <PedidoVisualizacion pedido={selectedPedidoView} />
   </Modal.Body>
 </Modal>
     </div>
