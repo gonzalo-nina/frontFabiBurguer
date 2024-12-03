@@ -54,6 +54,9 @@ const PedidosForm: React.FC<PedidosFormProps> = ({ onSubmit, onCancel, selectedP
 
   useEffect(() => {
     const cargarPedidoExistente = async () => {
+      // Limpiar productos seleccionados al inicio
+      setProductosSeleccionados([]);
+      
       if (selectedPedido?.idPedido) {
         try {
           const detalles = await pedidoService.obtenerDetallesPedido(selectedPedido.idPedido);
@@ -73,6 +76,7 @@ const PedidosForm: React.FC<PedidosFormProps> = ({ onSubmit, onCancel, selectedP
             };
           }).filter(Boolean) as ProductoSeleccionado[];
 
+          console.log('📝 Productos cargados para edición:', productosDelPedido);
           setProductosSeleccionados(productosDelPedido);
           setClienteId(selectedPedido.idCliente.toString());
         } catch (error) {
