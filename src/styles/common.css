@@ -1,10 +1,25 @@
 /* src/styles/common.css */
+
 /* Base Styles */
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
+
 body {
-  background-color: var(--background-light);
+  margin: 0;
+  min-height: 100vh;
+  background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('/IMG/grunge-background-ideal-halloween.jpg');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-position: center;
   color: var(--text-primary);
   font-family: 'Inter', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
+  display: flex;
+  flex-direction: column;
 }
 
 .btn-primary {
@@ -26,11 +41,15 @@ body {
 }
 
 .header-container {
-  background-color: var(--white);
-  padding: 20px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
   border-radius: 12px;
-  margin-bottom: 30px;
-  box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
 }
 
 .header-container h1 {
@@ -53,19 +72,42 @@ body {
 }
 
 .modern-card {
-  background: var(--white);
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--border-color);
-  box-shadow: var(--shadow-md);
-  transition: all 0.2s ease;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
   overflow: hidden;
   height: 100%;
+  border: 1px solid rgba(0,0,0,0.1);
 }
 
 .modern-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-lg);
-  border-color: rgba(0,0,0,0.08);
+  transform: translateY(-5px);
+  box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+}
+
+.modern-card img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+}
+
+.modern-card .card-body {
+  padding: 1.5rem;
+}
+
+.modern-card .card-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+}
+
+.modern-card p {
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
 }
 
 .modern-card-title {
@@ -118,13 +160,21 @@ body {
 /* Layout */
 .layout-container {
   display: grid;
-  grid-template-columns: 280px 1fr;
+  grid-template-columns: 250px 1fr;
   min-height: 100vh;
+  flex: 1;
 }
 
 .main-content {
-  padding: var(--spacing-6);
-  background: var(--background-light);
+  position: relative;
+  background: rgba(255, 255, 255, 0.95);
+  min-height: 100vh;
+  height: 100%;
+  padding: 2rem;
+  overflow-x: hidden;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Tables */
@@ -308,4 +358,62 @@ body {
 .action-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+/* Button styles */
+.btn-group {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.btn {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.btn-outline-primary {
+  border: 1px solid var(--primary-color);
+  color: var(--primary-color);
+}
+
+.btn-outline-primary:hover {
+  background: var(--primary-color);
+  color: white;
+}
+
+.btn-outline-danger {
+  border: 1px solid var(--danger);
+  color: var(--danger);
+}
+
+.btn-outline-danger:hover {
+  background: var(--danger);
+  color: white;
+}
+
+/* Grid layout for cards */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  padding: 1rem 0;
+  flex: 1;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .layout-container {
+    grid-template-columns: 1fr;
+  }
+  
+  .main-content {
+    padding: 1rem;
+  }
+  
+  .card-grid {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  }
 }

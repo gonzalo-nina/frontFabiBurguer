@@ -53,6 +53,11 @@ const ClienteList = () => {
     }
   };
 
+  const handleEdit = (cliente: Cliente) => {
+    setSelectedCliente(cliente);
+    setShowForm(true);
+  };
+
   return (
     <Container className="py-4">
       <Row className="mb-4">
@@ -72,20 +77,19 @@ const ClienteList = () => {
         </Col>
       </Row>
 
-      <Row xs={1} md={2} lg={3} className="g-4">
-        {clientes.map((cliente) => (
-          <Col key={cliente.idCliente}>
-            <ClienteCard
-              cliente={cliente}
-              onEdit={(cliente) => {
-                setSelectedCliente(cliente);
-                setShowForm(true);
-              }}
-              onDelete={handleDelete}
-            />
-          </Col>
-        ))}
-      </Row>
+      <Container fluid>
+        <div className="card-grid">
+          {clientes.map((cliente) => (
+            <div key={cliente.idCliente} className="modern-card">
+              <ClienteCard
+                cliente={cliente}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+              />
+            </div>
+          ))}
+        </div>
+      </Container>
 
       <ClienteForm
         show={showForm}
