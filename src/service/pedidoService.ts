@@ -133,6 +133,15 @@ class PedidoService {
       throw error;
     }
   }
+
+  async eliminarDetallePedido(idDetalle: number): Promise<void> {
+    try {
+      await axios.delete(`${DETALLE_API_URL}/${idDetalle}`, this.getAuthHeader());
+    } catch (error) {
+      console.error('Error al eliminar detalle:', error);
+      throw error;
+    }
+  }
 }
 
 export default new PedidoService();

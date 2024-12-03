@@ -8,6 +8,7 @@ export interface Pedido {
 }
 
 export interface DetallePedido {
+    idDetallePedido?: number;
   pedido: {
       idPedido: number;
   };

@@ -121,14 +121,30 @@ const PedidosForm: React.FC<PedidosFormProps> = ({ onSubmit, onCancel, selectedP
     
     try {
       if (selectedPedido?.idPedido) {
-        // Delete existing details and create new ones
+        console.log('🔄 Iniciando actualización de pedido:', selectedPedido.idPedido);
+
+        // 1. Obtener detalles actuales para limpiarlos
+        const detallesActuales = await pedidoService.obtenerDetallesPedido(selectedPedido.idPedido);
+        
+        // 2. Eliminar detalles existentes
+        console.log('🗑️ Eliminando detalles antiguos...');
+        for (const detalle of detallesActuales) {
+          if (detalle.idDetallePedido) { // Use correct property name
+            await pedidoService.eliminarDetallePedido(detalle.idDetallePedido);
+          } else {
+            console.warn('⚠️ Detalle encontrado sin ID:', detalle);
+          }
+        }
+
+        // 3. Calcular nuevo subtotal
         const subtotal = productosSeleccionados.reduce((sum, producto) => 
           sum + (producto.precio * producto.cantidad), 0
         );
 
-        // Create new details
+        // 4. Crear nuevos detalles
+        console.log('📝 Creando nuevos detalles...');
         for (const producto of productosSeleccionados) {
-          const detalle = {
+          const detalle: DetallePedido = {
             pedido: {
               idPedido: selectedPedido.idPedido
             },
@@ -143,17 +159,18 @@ const PedidosForm: React.FC<PedidosFormProps> = ({ onSubmit, onCancel, selectedP
           await pedidoService.crearDetallePedido(detalle);
         }
 
-        // Update order total
-        const pedidoActualizado: Pedido = {
+        // 5. Actualizar subtotal del pedido
+        const pedidoActualizado: PedidoDTO = {
           idPedido: selectedPedido.idPedido,
           idCliente: selectedPedido.idCliente,
           estadoPedido: selectedPedido.estadoPedido,
           subtotal: subtotal,
-          fechaPedido: selectedPedido.fechaPedido || new Date().toISOString()
+          fechaPedido: selectedPedido.fechaPedido
         };
 
         await pedidoService.actualizarSubtotalPedido(selectedPedido.idPedido, pedidoActualizado);
-        onSubmit(pedidoActualizado);
+        console.log('✅ Pedido actualizado exitosamente');
+        onSubmit({ ...pedidoActualizado, fechaPedido: pedidoActualizado.fechaPedido || '' });
       } else {
         console.log('🛒 Iniciando proceso de creación de pedido');
       
@@ -210,7 +227,7 @@ const PedidosForm: React.FC<PedidosFormProps> = ({ onSubmit, onCancel, selectedP
         }
     
         console.log('✅ Proceso completado exitosamente');
-        onSubmit(pedidoCreado);
+        onSubmit({ ...pedidoCreado, fechaPedido: pedidoCreado.fechaPedido || '' });
       }
   
     } catch (error) {
