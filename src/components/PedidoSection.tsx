@@ -157,7 +157,7 @@ const PedidosSection = () => {
       {loading ? (
         <div className="text-center">Cargando...</div>
       ) : (
-        <Table striped bordered hover responsive>
+        <Table className="modern-table" hover>
           <thead>
             <tr>
               <th>ID</th>
@@ -184,11 +184,11 @@ const PedidosSection = () => {
                       handleEstado(pedido.idPedido, e.target.checked)}
                   />
                 </td>
-                <td>
+                <td className="action-buttons">
                   <Button
-                    variant="info"
+                    variant="warning"
                     size="sm"
-                    className="me-2"
+                    className="action-btn action-btn-edit me-2"
                     onClick={() => {
                       setSelectedPedido(pedido);
                       setShowModal(true);
@@ -197,9 +197,9 @@ const PedidosSection = () => {
                     Editar
                   </Button>
                   <Button
-                    variant="primary"
+                    variant="info"
                     size="sm"
-                    className="me-2"
+                    className="action-btn action-btn-view me-2"
                     onClick={() => {
                       setSelectedPedidoView(pedido);
                       setShowViewModal(true);
@@ -210,6 +210,7 @@ const PedidosSection = () => {
                   <Button
                     variant="danger"
                     size="sm"
+                    className="action-btn action-btn-delete"
                     onClick={() => pedido.idPedido && handleDelete(pedido.idPedido)}
                   >
                     Eliminar

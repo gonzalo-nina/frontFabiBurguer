@@ -1,6 +1,6 @@
 // src/components/cliente/ClienteList.tsx
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Button } from 'react-bootstrap';
+import { Container, Row, Col, Button, Alert } from 'react-bootstrap';
 import ClienteCard from './ClienteCard';
 import ClienteForm from './ClienteForm';
 import { Cliente } from '../../types/cliente';
@@ -11,6 +11,7 @@ const ClienteList = () => {
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [selectedCliente, setSelectedCliente] = useState<Cliente | undefined>();
+  const [error, setError] = useState<string | null>(null);
 
   const loadClientes = async () => {
     try {
@@ -51,7 +52,7 @@ const ClienteList = () => {
       const tienePedidos = pedidos.some(pedido => pedido.idCliente === id);
   
       if (tienePedidos) {
-        alert('No se puede eliminar el cliente porque tiene pedidos asociados');
+        setError('No se puede eliminar el cliente porque tiene pedidos asociados');
         return;
       }
   
@@ -61,7 +62,7 @@ const ClienteList = () => {
       }
     } catch (error) {
       console.error('Error deleting cliente:', error);
-      alert('Error al eliminar cliente');
+      setError('Error al eliminar cliente');
     }
   };
 
@@ -72,6 +73,11 @@ const ClienteList = () => {
 
   return (
     <Container className="py-4">
+      {error && (
+        <Alert variant="danger" onClose={() => setError(null)} dismissible>
+          {error}
+        </Alert>
+      )}
       <Row className="mb-4">
         <Col>
           <h2>Clientes</h2>

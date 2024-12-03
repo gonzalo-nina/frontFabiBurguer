@@ -25,11 +25,21 @@ const ClienteCard = ({ cliente, onEdit, onDelete }: ClienteCardProps) => {
           <p><strong>Teléfono:</strong> {cliente.telefono}</p>
           <p><strong>Dirección:</strong> {cliente.direccion}</p>
         </div>
-        <div className="d-flex gap-2">
-          <Button variant="outline-primary" onClick={() => onEdit(cliente)}>
+        <div className="d-flex gap-2 action-buttons">
+          <Button 
+            variant="warning"
+            size="sm"
+            className="action-btn action-btn-edit"
+            onClick={() => onEdit(cliente)}
+          >
             Editar
           </Button>
-          <Button variant="outline-danger" onClick={() => onDelete(cliente.idCliente)}>
+          <Button 
+            variant="danger"
+            size="sm"
+            className="action-btn action-btn-delete"
+            onClick={() => onDelete(cliente.idCliente)}
+          >
             Eliminar
           </Button>
         </div>

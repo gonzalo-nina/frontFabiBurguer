@@ -46,11 +46,21 @@ const ProductoCard = ({ producto, onEdit, onDelete }: ProductoCardProps) => {
           <p><strong>Disponibilidad:</strong> {producto.disponibilidad}</p>
           <p><strong>Catálogo:</strong> {catalogoNombre}</p>
         </div>
-        <div className="d-flex gap-2">
-          <Button variant="outline-primary" onClick={() => onEdit(producto)}>
+        <div className="d-flex gap-2 action-buttons">
+          <Button 
+            variant="warning"
+            size="sm"
+            className="action-btn action-btn-edit"
+            onClick={() => onEdit(producto)}
+          >
             Editar
           </Button>
-          <Button variant="outline-danger" onClick={() => onDelete(producto.idProducto)}>
+          <Button 
+            variant="danger"
+            size="sm"
+            className="action-btn action-btn-delete"
+            onClick={() => onDelete(producto.idProducto)}
+          >
             Eliminar
           </Button>
         </div>

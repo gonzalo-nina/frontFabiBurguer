@@ -11,8 +11,6 @@ interface JWTPayload {
   exp: number;
 }
 
-
-// Modificamos la interfaz para ser más flexible
 interface JWTPayload {
   [key: string]: any;  // Esto nos permitirá ver todos los campos
 }
@@ -32,17 +30,14 @@ class AuthService {
       console.log('📥 Respuesta completa del servidor:', response.data);
 
       if (response.data.jwt) {
-        // Decodificar y examinar el token completo
         const token = response.data.jwt;
         const decodedToken = jwtDecode<JWTPayload>(token);
         
-        // Log detallado de todas las propiedades del token
         console.log('🔑 Token decodificado completo:', {
           todasLasPropiedades: Object.keys(decodedToken),
           contenidoCompleto: decodedToken
         });
 
-        // Intentar encontrar el rol en diferentes propiedades posibles
         const posiblesRoles = ['rol', 'role', 'authorities', 'scope', 'permission'];
         let userRole = null;
         

@@ -1,5 +1,11 @@
 /* src/styles/common.css */
-
+:root {
+  --warning: #ffc107;
+  --warning-hover: #ffca2c;
+  --info: #0dcaf0;
+  --info-hover: #31d2f2;
+  --danger-hover: #dc3545;
+}
 /* Base Styles */
 html, body {
   margin: 0;
@@ -343,21 +349,53 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
+  flex: 1;
+  text-align: center;
+  min-width: 90px;
 }
 
 .action-btn-edit {
   background: var(--primary-color);
   color: var(--white);
+  background-color: var(--warning) !important;
+  border-color: var(--warning) !important;
+  color: #000 !important;
 }
 
 .action-btn-edit:hover:not(:disabled) {
   background: var(--primary-hover);
   transform: translateY(-2px);
+  background-color: var(--warning-hover) !important;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 
 .action-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.action-btn-view {
+  background-color: var(--info) !important;
+  border-color: var(--info) !important;
+  color: #fff !important;
+}
+
+.action-btn-view:hover {
+  background-color: var(--info-hover) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.action-btn-delete {
+  background-color: var(--danger) !important;
+  border-color: var(--danger) !important;
+  color: #fff !important;
+}
+
+.action-btn-delete:hover {
+  background-color: var(--danger-hover) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 
 /* Button styles */
@@ -401,6 +439,14 @@ body {
   gap: 1.5rem;
   padding: 1rem 0;
   flex: 1;
+}
+
+/* Agregar a src/styles/common.css */
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-start;
+  align-items: center;
 }
 
 /* Responsive adjustments */

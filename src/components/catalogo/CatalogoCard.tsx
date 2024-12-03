@@ -23,11 +23,21 @@ const CatalogoCard = ({ catalogo, onEdit, onDelete }: CatalogoCardProps) => {
         <div className="mb-3">
           <p><strong>Descripción:</strong> {catalogo.descripcionCatalogo}</p>
         </div>
-        <div className="d-flex gap-2">
-          <Button variant="outline-primary" onClick={() => onEdit(catalogo)}>
+        <div className="d-flex gap-2 action-buttons">
+          <Button 
+            variant="warning"
+            size="sm"
+            className="action-btn action-btn-edit"
+            onClick={() => onEdit(catalogo)}
+          >
             Editar
           </Button>
-          <Button variant="outline-danger" onClick={() => onDelete(catalogo.idCatalogo!)}>
+          <Button 
+            variant="danger"
+            size="sm"
+            className="action-btn action-btn-delete"
+            onClick={() => onDelete(catalogo.idCatalogo!)}
+          >
             Eliminar
           </Button>
         </div>
