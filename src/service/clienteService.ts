@@ -1,5 +1,5 @@
 // src/service/clienteService.ts
-import axios from 'axios';
+import axios from '../config/axios'; // Cambiar esta importación
 import { Cliente } from '../types/cliente';
 
 const API_URL = '/api/v1/clientes';
