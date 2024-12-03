@@ -29,6 +29,7 @@ const PedidosForm: React.FC<PedidosFormProps> = ({ onSubmit, onCancel, selectedP
   const [productosSeleccionados, setProductosSeleccionados] = useState<ProductoSeleccionado[]>([]);
   const [showProductosModal, setShowProductosModal] = useState(false);
   const [total, setTotal] = useState(0);
+  const [disponibilidadActual, setDisponibilidadActual] = useState<Record<number, number>>({});
 
   useEffect(() => {
     const cargarDatos = async () => {
@@ -88,40 +89,66 @@ const PedidosForm: React.FC<PedidosFormProps> = ({ onSubmit, onCancel, selectedP
     cargarPedidoExistente();
   }, [selectedPedido, productos]); // Add productos to dependencies
 
+  useEffect(() => {
+    const disponibilidadInicial = productos.reduce((acc, producto) => {
+      acc[producto.idProducto] = producto.disponibilidad;
+      return acc;
+    }, {} as Record<number, number>);
+    setDisponibilidadActual(disponibilidadInicial);
+  }, [productos]);
+
   const handleAgregarProducto = (producto: Producto) => {
     const productoExistente = productosSeleccionados.find(p => p.idProducto === producto.idProducto);
-    
+    const disponibilidadBase = producto.disponibilidad;
+    const otrosProductosSeleccionados = productosSeleccionados.filter(p => p.idProducto !== producto.idProducto);
+    const cantidadOtrosProductos = otrosProductosSeleccionados.reduce((sum, p) => sum + p.cantidad, 0);
+    const disponibilidadMaxima = disponibilidadBase - cantidadOtrosProductos;
+
     if (productoExistente) {
-      if (productoExistente.cantidad < producto.disponibilidad) {
-        setProductosSeleccionados(productosSeleccionados.map(p =>
-          p.idProducto === producto.idProducto ? { ...p, cantidad: p.cantidad + 1 } : p
-        ));
+      const nuevaCantidad = productoExistente.cantidad + 1;
+      if (nuevaCantidad <= disponibilidadMaxima) {
+        updateCantidad(producto.idProducto, nuevaCantidad);
       }
     } else {
-      if (producto.disponibilidad > 0) {
+      if (disponibilidadMaxima > 0) {
         setProductosSeleccionados([...productosSeleccionados, { ...producto, cantidad: 1 }]);
+        setDisponibilidadActual(prev => ({
+          ...prev,
+          [producto.idProducto]: disponibilidadMaxima - 1
+        }));
       }
     }
   };
 
   const handleAjustarCantidad = (productoId: number, incremento: number) => {
-    setProductosSeleccionados(productosSeleccionados.map(p => {
-      if (p.idProducto === productoId) {
-        const nuevaCantidad = p.cantidad + incremento;
-        if (nuevaCantidad > 0 && nuevaCantidad <= p.disponibilidad) {
-          return { ...p, cantidad: nuevaCantidad };
-        }
-        return incremento < 0 ? p : null;
-      }
-      return p;
-    }).filter(Boolean) as ProductoSeleccionado[]);
+    const productoActual = productosSeleccionados.find(p => p.idProducto === productoId);
+    if (!productoActual) return;
+
+    const nuevaCantidad = productoActual.cantidad + incremento;
+    const disponibilidadBase = productos.find(p => p.idProducto === productoId)?.disponibilidad || 0;
+    const otrosProductosSeleccionados = productosSeleccionados.filter(p => p.idProducto !== productoId);
+    const cantidadOtrosProductos = otrosProductosSeleccionados.reduce((sum, p) => sum + p.cantidad, 0);
+    const disponibilidadMaxima = disponibilidadBase - cantidadOtrosProductos;
+
+    if (nuevaCantidad > 0 && nuevaCantidad <= disponibilidadMaxima) {
+      updateCantidad(productoId, nuevaCantidad);
+    }
   };
 
-  const handleRemoveProduct = (id: number) => {
-    setProductosSeleccionados(prev => 
-      prev.filter(p => p.idProducto !== id)
-    );
-  };
+  useEffect(() => {
+    const calcularDisponibilidadInicial = () => {
+      const disponibilidadInicial = productos.reduce((acc, producto) => {
+        const cantidadSeleccionada = productosSeleccionados
+          .filter(p => p.idProducto === producto.idProducto)
+          .reduce((sum, p) => sum + p.cantidad, 0);
+        acc[producto.idProducto] = producto.disponibilidad - cantidadSeleccionada;
+        return acc;
+      }, {} as Record<number, number>);
+      setDisponibilidadActual(disponibilidadInicial);
+    };
+
+    calcularDisponibilidadInicial();
+  }, [productos, productosSeleccionados]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -243,15 +270,48 @@ const PedidosForm: React.FC<PedidosFormProps> = ({ onSubmit, onCancel, selectedP
   };
 
   const updateCantidad = (productoId: number, nuevaCantidad: number): void => {
-    setProductosSeleccionados(prev => prev.map(producto => {
-      if (producto.idProducto === productoId) {
-        if (nuevaCantidad > 0 && nuevaCantidad <= producto.disponibilidad) {
-          return { ...producto, cantidad: nuevaCantidad };
-        }
-        return producto;
+    setProductosSeleccionados(prev => {
+      const productoActual = prev.find(p => p.idProducto === productoId);
+      if (!productoActual) return prev;
+
+      const disponibilidadBase = productos.find(p => p.idProducto === productoId)?.disponibilidad || 0;
+      const otrosProductosSeleccionados = prev.filter(p => p.idProducto !== productoId);
+      const cantidadOtrosProductos = otrosProductosSeleccionados.reduce((sum, p) => sum + p.cantidad, 0);
+      const disponibilidadMaxima = disponibilidadBase - cantidadOtrosProductos;
+
+      if (nuevaCantidad > 0 && nuevaCantidad <= disponibilidadMaxima) {
+        // Actualizar disponibilidad
+        setDisponibilidadActual(prevDisp => ({
+          ...prevDisp,
+          [productoId]: disponibilidadBase - (cantidadOtrosProductos + nuevaCantidad)
+        }));
+
+        return prev.map(p =>
+          p.idProducto === productoId 
+            ? { ...p, cantidad: nuevaCantidad }
+            : p
+        );
       }
-      return producto;
-    }));
+      return prev;
+    });
+  };
+
+  const handleRemoveProduct = (id: number) => {
+    const productoEliminado = productosSeleccionados.find(p => p.idProducto === id);
+    if (productoEliminado) {
+      // Restaurar disponibilidad
+      const disponibilidadBase = productos.find(p => p.idProducto === id)?.disponibilidad || 0;
+      const otrosProductos = productosSeleccionados.filter(p => p.idProducto !== id);
+      const cantidadOtrosProductos = otrosProductos.reduce((sum, p) => sum + p.cantidad, 0);
+      
+      setDisponibilidadActual(prev => ({
+        ...prev,
+        [id]: disponibilidadBase - cantidadOtrosProductos
+      }));
+      
+      // Eliminar producto de seleccionados
+      setProductosSeleccionados(prev => prev.filter(p => p.idProducto !== id));
+    }
   };
 
   return (
@@ -392,13 +452,13 @@ const PedidosForm: React.FC<PedidosFormProps> = ({ onSubmit, onCancel, selectedP
                   <td>{producto.nombre}</td>
                   <td>{producto.descripcion}</td>
                   <td>S/. {producto.precio}</td>
-                  <td>{producto.disponibilidad}</td>
+                  <td>{disponibilidadActual[producto.idProducto] || 0}</td>
                   <td>
                     <Button
                       variant="success"
                       size="sm"
                       onClick={() => handleAgregarProducto(producto)}
-                      disabled={producto.disponibilidad <= 0}
+                      disabled={disponibilidadActual[producto.idProducto] <= 0}
                     >
                       +
                     </Button>
