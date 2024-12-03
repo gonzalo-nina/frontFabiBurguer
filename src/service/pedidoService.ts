@@ -142,6 +142,19 @@ class PedidoService {
       throw error;
     }
   }
+
+  async verificarProductoEnDetalles(idProducto: number): Promise<boolean> {
+    try {
+      const response = await axios.get(
+        `${DETALLE_API_URL}/producto/${idProducto}/existe`,
+        this.getAuthHeader()
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error al verificar producto en detalles:', error);
+      throw error;
+    }
+  }
 }
 
 export default new PedidoService();
