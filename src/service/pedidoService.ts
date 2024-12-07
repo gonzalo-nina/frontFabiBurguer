@@ -86,7 +86,12 @@ class PedidoService {
 
   async actualizarPedido(id: number, pedido: Pedido): Promise<Pedido> {
     try {
-      const response = await axios.put(`${API_URL}/${id}`, pedido);
+      // Añadir getAuthHeader() a la petición
+      const response = await axios.put(
+        `${API_URL}/${id}`, 
+        pedido,
+        this.getAuthHeader() // Agregar esto
+      );
       return response.data;
     } catch (error) {
       console.error('Error al actualizar pedido:', error);
