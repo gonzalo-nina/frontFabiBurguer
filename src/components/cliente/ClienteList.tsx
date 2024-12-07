@@ -6,12 +6,15 @@ import ClienteForm from './ClienteForm';
 import { Cliente } from '../../types/cliente';
 import ClienteService from '../../service/clienteService';
 import pedidoService from '../../service/pedidoService';
+import AuthService from '../../service/auth';
+
 
 const ClienteList = () => {
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [selectedCliente, setSelectedCliente] = useState<Cliente | undefined>();
   const [error, setError] = useState<string | null>(null);
+  const isAdmin = AuthService.isAdmin();
 
   const loadClientes = async () => {
     try {
@@ -19,7 +22,7 @@ const ClienteList = () => {
       setClientes(data);
     } catch (error) {
       console.error('Error loading clientes:', error);
-      alert('Error al cargar clientes');
+      setError('Error al cargar clientes');
     }
   };
 
@@ -44,11 +47,14 @@ const ClienteList = () => {
   };
 
   const handleDelete = async (id: number) => {
+    // Only allow admin to delete
+    if (!isAdmin) {
+      setError('No tienes permisos para eliminar clientes');
+      return;
+    }
+
     try {
-      // Obtener todos los pedidos
       const pedidos = await pedidoService.listarPedidos();
-      
-      // Verificar si algún pedido está asociado al cliente
       const tienePedidos = pedidos.some(pedido => pedido.idCliente === id);
   
       if (tienePedidos) {

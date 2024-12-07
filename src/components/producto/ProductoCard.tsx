@@ -4,6 +4,9 @@ import { Card, Button } from 'react-bootstrap';
 import { Producto } from '../../types/producto';
 import { Catalogo } from '../../types/catalogo';
 import CatalogoService from '../../service/catalogoService';
+import AuthService from '../../service/auth'; // Add this
+
+// Add this
 
 interface ProductoCardProps {
   producto: Producto;
@@ -13,6 +16,7 @@ interface ProductoCardProps {
 
 const ProductoCard = ({ producto, onEdit, onDelete }: ProductoCardProps) => {
   const [catalogoNombre, setCatalogoNombre] = useState<string>('Cargando...');
+  const isAdmin = AuthService.isAdmin(); // Add this
 
   useEffect(() => {
     const loadCatalogo = async () => {
@@ -46,24 +50,26 @@ const ProductoCard = ({ producto, onEdit, onDelete }: ProductoCardProps) => {
           <p><strong>Disponibilidad:</strong> {producto.disponibilidad}</p>
           <p><strong>Catálogo:</strong> {catalogoNombre}</p>
         </div>
-        <div className="d-flex gap-2 action-buttons">
-          <Button 
-            variant="warning"
-            size="sm"
-            className="action-btn action-btn-edit"
-            onClick={() => onEdit(producto)}
-          >
-            Editar
-          </Button>
-          <Button 
-            variant="danger"
-            size="sm"
-            className="action-btn action-btn-delete"
-            onClick={() => onDelete(producto.idProducto)}
-          >
-            Eliminar
-          </Button>
-        </div>
+        {isAdmin && ( // Add this conditional rendering
+          <div className="d-flex gap-2 action-buttons">
+            <Button 
+              variant="warning"
+              size="sm"
+              className="action-btn action-btn-edit"
+              onClick={() => onEdit(producto)}
+            >
+              Editar
+            </Button>
+            <Button 
+              variant="danger"
+              size="sm"
+              className="action-btn action-btn-delete"
+              onClick={() => onDelete(producto.idProducto)}
+            >
+              Eliminar
+            </Button>
+          </div>
+        )}
       </Card.Body>
     </Card>
   );

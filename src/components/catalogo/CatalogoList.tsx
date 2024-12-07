@@ -6,6 +6,7 @@ import CatalogoForm from './CatalogoForm';
 import { Catalogo } from '../../types/catalogo';
 import CatalogoService from '../../service/catalogoService';
 import ProductoService from '../../service/productoService';
+import AuthService from '../../service/auth';
 
 const CatalogoList = () => {
   const [catalogos, setCatalogos] = useState<Catalogo[]>([]);
@@ -13,6 +14,7 @@ const CatalogoList = () => {
   const [selectedCatalogo, setSelectedCatalogo] = useState<Catalogo | undefined>();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const isAdmin = AuthService.isAdmin();
 
   const loadCatalogos = async () => {
     try {
@@ -115,19 +117,21 @@ const CatalogoList = () => {
         <Col>
           <h2>Catálogos</h2>
         </Col>
-        <Col xs="auto">
-          <Button
-            variant="primary"
-            onClick={() => {
-              setSelectedCatalogo(undefined);
-              setShowForm(true);
-              setError(null);
-            }}
-            disabled={loading}
-          >
-            Nuevo Catálogo
-          </Button>
-        </Col>
+        {isAdmin && (
+          <Col xs="auto">
+            <Button
+              variant="primary"
+              onClick={() => {
+                setSelectedCatalogo(undefined);
+                setShowForm(true);
+                setError(null);
+              }}
+              disabled={loading}
+            >
+              Nuevo Catálogo
+            </Button>
+          </Col>
+        )}
       </Row>
 
       {loading ? (
@@ -138,28 +142,27 @@ const CatalogoList = () => {
             <Col key={catalogo.idCatalogo}>
               <CatalogoCard
                 catalogo={catalogo}
-                onEdit={(catalogo) => {
-                  setSelectedCatalogo(catalogo);
-                  setShowForm(true);
-                  setError(null);
-                }}
-                onDelete={handleDelete}
+                onEdit={isAdmin ? handleSave : () => {}}
+                onDelete={isAdmin ? handleDelete : () => {}}
+                isAdmin={isAdmin}
               />
             </Col>
           ))}
         </Row>
       )}
 
-      <CatalogoForm
-        show={showForm}
-        onHide={() => {
-          setShowForm(false);
-          setSelectedCatalogo(undefined);
-          setError(null);
-        }}
-        onSave={handleSave}
-        catalogo={selectedCatalogo}
-      />
+      {isAdmin && (
+        <CatalogoForm
+          show={showForm}
+          onHide={() => {
+            setShowForm(false);
+            setSelectedCatalogo(undefined);
+            setError(null);
+          }}
+          onSave={handleSave}
+          catalogo={selectedCatalogo}
+        />
+      )}
     </Container>
   );
 };

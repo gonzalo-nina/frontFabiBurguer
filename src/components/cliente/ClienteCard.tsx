@@ -2,6 +2,8 @@
 import React from 'react';
 import { Card, Button } from 'react-bootstrap';
 import { Cliente } from '../../types/cliente';
+import AuthService from '../../service/auth';
+
 
 interface ClienteCardProps {
   cliente: Cliente;
@@ -10,6 +12,8 @@ interface ClienteCardProps {
 }
 
 const ClienteCard = ({ cliente, onEdit, onDelete }: ClienteCardProps) => {
+  const isAdmin = AuthService.isAdmin();
+
   return (
     <Card className="h-100">
       <Card.Img 
@@ -27,21 +31,23 @@ const ClienteCard = ({ cliente, onEdit, onDelete }: ClienteCardProps) => {
         </div>
         <div className="d-flex gap-2 action-buttons">
           <Button 
-            variant="warning"
+            variant="primary"
             size="sm"
             className="action-btn action-btn-edit"
             onClick={() => onEdit(cliente)}
           >
             Editar
           </Button>
-          <Button 
-            variant="danger"
-            size="sm"
-            className="action-btn action-btn-delete"
-            onClick={() => onDelete(cliente.idCliente)}
-          >
-            Eliminar
-          </Button>
+          {isAdmin && (
+            <Button 
+              variant="danger"
+              size="sm"
+              className="action-btn action-btn-delete"
+              onClick={() => onDelete(cliente.idCliente)}
+            >
+              Eliminar
+            </Button>
+          )}
         </div>
       </Card.Body>
     </Card>

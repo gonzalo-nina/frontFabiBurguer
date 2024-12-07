@@ -7,9 +7,10 @@ interface CatalogoCardProps {
   catalogo: Catalogo;
   onEdit: (catalogo: Catalogo) => void;
   onDelete: (id: number) => void;
+  isAdmin: boolean;
 }
 
-const CatalogoCard = ({ catalogo, onEdit, onDelete }: CatalogoCardProps) => {
+const CatalogoCard = ({ catalogo, onEdit, onDelete, isAdmin }: CatalogoCardProps) => {
   return (
     <Card className="h-100">
       <Card.Img 
@@ -23,24 +24,26 @@ const CatalogoCard = ({ catalogo, onEdit, onDelete }: CatalogoCardProps) => {
         <div className="mb-3">
           <p><strong>Descripción:</strong> {catalogo.descripcionCatalogo}</p>
         </div>
-        <div className="d-flex gap-2 action-buttons">
-          <Button 
-            variant="warning"
-            size="sm"
-            className="action-btn action-btn-edit"
-            onClick={() => onEdit(catalogo)}
-          >
-            Editar
-          </Button>
-          <Button 
-            variant="danger"
-            size="sm"
-            className="action-btn action-btn-delete"
-            onClick={() => onDelete(catalogo.idCatalogo!)}
-          >
-            Eliminar
-          </Button>
-        </div>
+        {isAdmin && (
+          <div className="d-flex gap-2 action-buttons">
+            <Button 
+              variant="warning"
+              size="sm"
+              className="action-btn action-btn-edit"
+              onClick={() => onEdit(catalogo)}
+            >
+              Editar
+            </Button>
+            <Button 
+              variant="danger"
+              size="sm"
+              className="action-btn action-btn-delete"
+              onClick={() => onDelete(catalogo.idCatalogo!)}
+            >
+              Eliminar
+            </Button>
+          </div>
+        )}
       </Card.Body>
     </Card>
   );

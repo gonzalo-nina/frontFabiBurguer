@@ -6,7 +6,9 @@ import ProductoForm from './ProductoForm';
 import { Producto } from '../../types/producto';
 import ProductoService from '../../service/productoService';
 import pedidoService from '../../service/pedidoService';
-import { PedidoDTO } from '../../types/Pedido';
+import AuthService from '../../service/auth'; // Add this
+
+ // Add this
 
 const ProductoList = () => {
   const [productos, setProductos] = useState<Producto[]>([]);
@@ -14,6 +16,8 @@ const ProductoList = () => {
   const [selectedProducto, setSelectedProducto] = useState<Producto | undefined>();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const isAdmin = AuthService.isAdmin(); // Add this
 
   const loadProductos = async () => {
     try {
@@ -100,6 +104,12 @@ const ProductoList = () => {
     }
   };
 
+  const handleEdit = (producto: Producto) => {
+    setSelectedProducto(producto);
+    setShowForm(true);
+    setError(null);
+  };
+
   return (
     <Container className="py-4">
       {error && (
@@ -112,19 +122,21 @@ const ProductoList = () => {
         <Col>
           <h2>Productos</h2>
         </Col>
-        <Col xs="auto">
-          <Button
-            variant="primary"
-            onClick={() => {
-              setSelectedProducto(undefined);
-              setShowForm(true);
-              setError(null);
-            }}
-            disabled={loading}
-          >
-            Nuevo Producto
-          </Button>
-        </Col>
+        {isAdmin && ( // Add this conditional rendering
+          <Col xs="auto">
+            <Button
+              variant="primary"
+              onClick={() => {
+                setSelectedProducto(undefined);
+                setShowForm(true);
+                setError(null);
+              }}
+              disabled={loading}
+            >
+              Nuevo Producto
+            </Button>
+          </Col>
+        )}
       </Row>
 
       {loading ? (
@@ -135,28 +147,26 @@ const ProductoList = () => {
             <Col key={producto.idProducto}>
               <ProductoCard
                 producto={producto}
-                onEdit={(producto) => {
-                  setSelectedProducto(producto);
-                  setShowForm(true);
-                  setError(null);
-                }}
-                onDelete={handleDelete}
+                onEdit={isAdmin ? handleEdit : () => {}} // Add conditional
+                onDelete={isAdmin ? handleDelete : () => {}} // Add conditional
               />
             </Col>
           ))}
         </Row>
       )}
 
-      <ProductoForm
-        show={showForm}
-        onHide={() => {
-          setShowForm(false);
-          setSelectedProducto(undefined);
-          setError(null);
-        }}
-        onSave={handleSave}
-        producto={selectedProducto}
-      />
+      {isAdmin && ( // Add this conditional rendering
+        <ProductoForm
+          show={showForm}
+          onHide={() => {
+            setShowForm(false);
+            setSelectedProducto(undefined);
+            setError(null);
+          }}
+          onSave={handleSave}
+          producto={selectedProducto}
+        />
+      )}
     </Container>
   );
 };
