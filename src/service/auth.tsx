@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from '../config/axios';
 import { jwtDecode } from 'jwt-decode';
 import { usuario, UserRoles } from '../types/usuario';
 
@@ -16,6 +16,34 @@ interface JWTPayload {
 }
 
 class AuthService {
+  private monitorTokenExpiration(token: string) {
+    try {
+      const decodedToken = jwtDecode<JWTPayload>(token);
+      const currentTime = Date.now() / 1000;
+      const timeLeft = decodedToken.exp - currentTime;
+
+      console.log('⏱️ Token expiration:', {
+        expiresAt: new Date(decodedToken.exp * 1000).toLocaleString(),
+        timeLeft: Math.floor(timeLeft / 60), // minutos restantes
+      });
+
+      if (timeLeft > 0) {
+        setTimeout(() => {
+          console.log('⌛ Token expirado - cerrando sesión');
+          this.logout();
+          alert('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.');
+          window.location.href = '/login';
+        }, timeLeft * 1000);
+      } else {
+        this.logout();
+        alert('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.');
+        window.location.href = '/login';
+      }
+    } catch (error) {
+      console.error('❌ Error monitoreando token:', error);
+    }
+  }
+
   async login(email: string, clave: string): Promise<usuario | null> {
     try {
       console.log('📧 Iniciando login:', { email });
@@ -61,6 +89,9 @@ class AuthService {
 
         localStorage.setItem('user', JSON.stringify(userData));
         this.setAuthHeader(userData.token);
+        
+        // Añadir monitoreo después de login exitoso
+        this.monitorTokenExpiration(token);
         
         return userData;
       }
@@ -119,6 +150,12 @@ class AuthService {
           exists: !!user.token,
           preview: user.token?.substring(0, 20)
         });
+        
+        // Añadir monitoreo cuando se recupera el usuario
+        if (user.token) {
+          this.monitorTokenExpiration(user.token);
+        }
+        
         return user;
       }
       return null;
