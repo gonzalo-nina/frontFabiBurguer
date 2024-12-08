@@ -1,0 +1,30 @@
+.input-group {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  
+  .input-group .input-group-text {
+    background-color: white;
+    border: 1px solid #e0e0e0;
+    border-right: none;
+    padding: 0.5rem 1rem;
+  }
+  
+  .input-group .form-control {
+    border: 1px solid #e0e0e0;
+    border-left: none;
+    padding: 0.5rem 1rem;
+  }
+  
+  .form-select {
+    border: 1px solid #e0e0e0;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+  
+  .form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(231, 76, 60, 0.25);
+  }

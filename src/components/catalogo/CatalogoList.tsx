@@ -1,12 +1,14 @@
 // src/components/catalogo/CatalogoList.tsx
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Button, Alert } from 'react-bootstrap';
+import { Container, Row, Col, Button, Alert, Form, InputGroup } from 'react-bootstrap';
 import CatalogoCard from './CatalogoCard';
 import CatalogoForm from './CatalogoForm';
 import { Catalogo } from '../../types/catalogo';
 import CatalogoService from '../../service/catalogoService';
 import ProductoService from '../../service/productoService';
 import AuthService from '../../service/auth';
+import { Search } from 'lucide-react'; // Para el ícono de búsqueda
+import '../../styles/barraBusqueda.css'
 
 const CatalogoList = () => {
   const [catalogos, setCatalogos] = useState<Catalogo[]>([]);
@@ -15,6 +17,7 @@ const CatalogoList = () => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const isAdmin = AuthService.isAdmin();
+  const [searchTerm, setSearchTerm] = useState('');
 
   const loadCatalogos = async () => {
     try {
@@ -107,6 +110,11 @@ const CatalogoList = () => {
     setError(null);
   };
 
+  // Filtrar catálogos basado en el término de búsqueda
+  const filteredCatalogos = catalogos.filter(catalogo =>
+    catalogo.nombreCatalogo.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <Container className="py-4">
       {error && (
@@ -119,8 +127,8 @@ const CatalogoList = () => {
         <Col>
           <h2>Catálogos</h2>
         </Col>
-        {isAdmin && (
-          <Col xs="auto">
+        <Col xs="auto">
+          {isAdmin && (
             <Button
               variant="primary"
               onClick={() => {
@@ -132,15 +140,32 @@ const CatalogoList = () => {
             >
               Nuevo Catálogo
             </Button>
-          </Col>
-        )}
+          )}
+        </Col>
+      </Row>
+
+      {/* Agregar barra de búsqueda */}
+      <Row className="mb-4">
+        <Col md={6}>
+          <InputGroup>
+            <InputGroup.Text>
+              <Search size={20} />
+            </InputGroup.Text>
+            <Form.Control
+              type="text"
+              placeholder="Buscar catálogo por nombre..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </InputGroup>
+        </Col>
       </Row>
 
       {loading ? (
         <div className="text-center">Cargando...</div>
       ) : (
         <Row xs={1} md={2} lg={3} className="g-4">
-          {catalogos.map((catalogo) => (
+          {filteredCatalogos.map((catalogo) => (
             <Col key={catalogo.idCatalogo}>
               <CatalogoCard
                 catalogo={catalogo}
@@ -150,6 +175,13 @@ const CatalogoList = () => {
               />
             </Col>
           ))}
+          {filteredCatalogos.length === 0 && !loading && (
+            <Col xs={12}>
+              <Alert variant="info">
+                No se encontraron catálogos que coincidan con la búsqueda
+              </Alert>
+            </Col>
+          )}
         </Row>
       )}
 

@@ -1,19 +1,21 @@
 // src/components/cliente/ClienteList.tsx
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Button, Alert } from 'react-bootstrap';
+import { Container, Row, Col, Button, Alert, Form, InputGroup } from 'react-bootstrap';
+import { Search } from 'lucide-react';
 import ClienteCard from './ClienteCard';
 import ClienteForm from './ClienteForm';
 import { Cliente } from '../../types/cliente';
 import ClienteService from '../../service/clienteService';
 import pedidoService from '../../service/pedidoService';
 import AuthService from '../../service/auth';
-
+import '../../styles/barraBusqueda.css'
 
 const ClienteList = () => {
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [selectedCliente, setSelectedCliente] = useState<Cliente | undefined>();
   const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
   const isAdmin = AuthService.isAdmin();
 
   const loadClientes = async () => {
@@ -74,6 +76,10 @@ const ClienteList = () => {
     setShowForm(true);
   };
 
+  const filteredClientes = clientes.filter(cliente =>
+    cliente.nombre.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <Container className="py-4">
       {error && (
@@ -98,9 +104,25 @@ const ClienteList = () => {
         </Col>
       </Row>
 
+      <Row className="mb-4">
+        <Col md={6}>
+          <InputGroup>
+            <InputGroup.Text>
+              <Search size={20} />
+            </InputGroup.Text>
+            <Form.Control
+              type="text"
+              placeholder="Buscar cliente por nombre..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </InputGroup>
+        </Col>
+      </Row>
+
       <Container fluid>
         <div className="card-grid">
-          {clientes.map((cliente) => (
+          {filteredClientes.map((cliente) => (
             <div key={cliente.idCliente} className="modern-card">
               <ClienteCard
                 cliente={cliente}
@@ -109,6 +131,13 @@ const ClienteList = () => {
               />
             </div>
           ))}
+          {filteredClientes.length === 0 && (
+            <Col xs={12}>
+              <Alert variant="info">
+                No se encontraron clientes que coincidan con la búsqueda
+              </Alert>
+            </Col>
+          )}
         </div>
       </Container>
 
