@@ -2,7 +2,7 @@
 
 import { NavLink } from 'react-router-dom';
 import { Nav } from 'react-bootstrap';
-import { FaHome, FaBox, FaUsers, FaList, FaUserEdit, FaShoppingCart } from 'react-icons/fa';
+import { FaHome, FaBox, FaUsers, FaList, FaUserEdit, FaShoppingCart, FaChartBar } from 'react-icons/fa';
 import '../styles/Sidebar.css';
 
 const Sidebar = () => {
@@ -29,6 +29,9 @@ const Sidebar = () => {
         </NavLink>
         <NavLink to="/usuario" className={({isActive}) => `sidebar-link ${isActive ? 'active' : ''}`}>
           <FaUserEdit className="sidebar-icon" /> Usuarios
+        </NavLink>
+        <NavLink to="/reports" className={({isActive}) => `sidebar-link ${isActive ? 'active' : ''}`}>
+          <FaChartBar className="sidebar-icon" /> Reportes
         </NavLink>
       </Nav>
     </div>

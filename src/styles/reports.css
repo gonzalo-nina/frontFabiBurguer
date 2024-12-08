@@ -1,0 +1,252 @@
+.chart-container {
+  position: relative;
+  width: 100%;
+  height: 300px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden; /* Prevent overflow */
+  margin: auto;
+  z-index: 1;
+}
+
+.card {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  border: none;
+}
+
+.card-title {
+  color: #2c3e50;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+}
+
+/* src/styles/reports.css */
+.react-datepicker-wrapper {
+    width: auto;
+    z-index: 1000;
+    position: relative;
+  }
+  
+  .react-datepicker__input-container input {
+    padding: 0.375rem 0.75rem;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+  }
+
+  .date-filters {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 0.25rem;
+    margin-bottom: 1rem;
+  }
+  
+  .date-filters .form-group {
+    margin-bottom: 0;
+  }
+
+  /* src/styles/reports.css */
+.sales-card {
+    height: 100%;
+  }
+  
+  .date-filters {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .charts-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem; /* Reduced gap */
+    margin-top: 1rem;
+  }
+  
+  .chart-wrapper {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16/9; /* Maintain aspect ratio */
+    max-height: 200px; /* Maximum height for circular charts */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem;
+    background-color: #fff;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+  
+  .total-amount {
+    text-align: center;
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #2c3e50;
+  }
+  
+  .total-amount h3 {
+    font-size: 1.2rem;
+    color: #666;
+    margin-bottom: 0.5rem;
+  }
+  
+  .amount {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #2c3e50;
+  }
+  
+  .chart-wrapper h3 {
+    font-size: 1.1rem;
+    color: #666;
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+  
+  @media (max-width: 768px) {
+    .charts-container {
+      grid-template-columns: 1fr;
+    }
+    
+    .chart-wrapper {
+      margin-bottom: 1rem;
+      max-height: 180px;
+    }
+
+    .chart-container {
+      height: 250px;
+    }
+
+    .date-picker-wrapper {
+      flex-direction: column;
+      gap: 1rem;
+    }
+  }
+  
+  .card {
+    border: none;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+  }
+  
+  .card:hover {
+    transform: translateY(-2px);
+  }
+
+.chart-card {
+  height: 100%;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  border: none;
+  border-radius: 8px;
+  background: white;
+  margin-bottom: 1rem;
+  position: relative;
+  z-index: 1;
+}
+
+.filter-card {
+  background: white;
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  transition: all 0.3s ease;
+  height: auto;
+  min-height: 120px;
+  margin-bottom: 1rem;
+  padding: 1rem;
+}
+
+.filter-card.picker-open {
+  margin-bottom: 0rem;
+  height: auto;
+  min-height: 400px;
+  padding: 1.5rem;
+}
+
+.date-filter-container {
+  position: relative;
+  padding: 1rem;
+  transition: all 0.3s ease;
+  height: 100%;
+}
+
+.filter-title {
+  margin-bottom: 1rem;
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.date-picker-wrapper {
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+  justify-content: center;
+  position: relative;
+  transition: all 0.3s ease;
+  min-height: 60px;
+}
+
+.picker-open .date-picker-wrapper {
+  min-height: 30px;
+}
+
+.date-picker-wrapper .form-group {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: all 0.3s ease;
+}
+
+.react-datepicker-wrapper {
+  position: relative;
+  z-index: 1000;
+  transition: all 0.3s ease;
+}
+
+.react-datepicker-popper {
+  z-index: 1000;
+}
+
+.react-datepicker__portal {
+  z-index: 2000;
+}
+
+.react-datepicker {
+  font-family: inherit;
+  z-index: 2000;
+}
+
+.total-sales-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.total-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+/* Ensure canvas respects container dimensions */
+canvas {
+  max-width: 100% !important;
+  max-height: 100% !important;
+  width: auto !important;
+  height: auto !important;
+}
+
+/* Add animation for smooth transition */
+@keyframes expandSpace {
+  from {
+    margin-bottom: 1rem;
+  }
+  to {
+    margin-bottom: 20rem;
+  }
+}

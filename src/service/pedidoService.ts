@@ -175,6 +175,16 @@ class PedidoService {
       throw error;
     }
   }
+
+  async obtenerTodosPedidos(): Promise<PedidoDTO[]> {
+    try {
+      const response = await axios.get(`${API_URL}`, this.getAuthHeader());
+      return response.data;
+    } catch (error) {
+      console.error('Error al obtener todos los pedidos:', error);
+      throw error;
+    }
+  }
 }
 
 export default new PedidoService();

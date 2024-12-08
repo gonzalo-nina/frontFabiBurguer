@@ -9,6 +9,7 @@ import ClienteSection from '../components/ClienteSection';
 import CatalogoSection from '../components/CatalogoSection';
 import PedidosSection from '../components/PedidoSection';
 import ProtectedRoute from './ProyecyedRoute';
+import Reports from '../components/reports/Reports';
 import Layout from '../components/layout';
 import { Navigate } from 'react-router-dom';
 import { Outlet } from 'react-router-dom';
@@ -69,6 +70,10 @@ const createRoutes = (
         {
           path: 'usuario',
           element: <UsuarioSection />,
+        },
+        {
+          path: 'reports',
+          element: <Reports />,
         },
       ],
     },
