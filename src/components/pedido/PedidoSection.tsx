@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Table, Button, Modal, Form, Alert } from 'react-bootstrap';
-import pedidoService from '../service/pedidoService';
-import { Pedido, DetallePedido } from '../types/Pedido';
+import pedidoService from '../../service/pedidoService';
+import { Pedido, DetallePedido } from '../../types/Pedido';
 import PedidosForm from './PedidosForm';
-import clienteService from '../service/clienteService';
-import { Cliente } from '../types/cliente';
-import productoService from '../service/productoService';
-import { Producto } from '../types/producto';
+import clienteService from '../../service/clienteService';
+import { Cliente } from '../../types/cliente';
+import productoService from '../../service/productoService';
+import { Producto } from '../../types/producto';
 
 const PedidosSection = () => {
     const [pedidos, setPedidos] = useState<Pedido[]>([]);

@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form, Table } from 'react-bootstrap';
-import clienteService from '../service/clienteService';
-import productoService from '../service/productoService';
-import { Cliente } from '../types/cliente';
-import { Producto } from '../types/producto';
-import { Pedido, DetallePedido, PedidoDTO } from '../types/Pedido';
+import clienteService from '../../service/clienteService';
+import productoService from '../../service/productoService';
+import { Cliente } from '../../types/cliente';
+import { Producto } from '../../types/producto';
+import { Pedido, DetallePedido, PedidoDTO } from '../../types/Pedido';
 import { X, PenSquare } from 'lucide-react';
-import '../styles/ProductCards.css';
-import pedidoService from '../service/pedidoService';
-import auth from '../service/auth'; // Import auth service
-import ClienteForm from './cliente/ClienteForm'; // 1. Import ClienteForm
+import '../../styles/ProductCards.css';
+import pedidoService from '../../service/pedidoService';
+import auth from '../../service/auth'; // Import auth service
+import ClienteForm from '../cliente/ClienteForm'; // 1. Import ClienteForm
 
 interface ProductoSeleccionado extends Producto {
   cantidad: number;

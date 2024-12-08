@@ -3,11 +3,11 @@ import { RouteObject } from 'react-router-dom';
 import { usuario } from '../types/usuario';
 import LoginPage from '../pages/loginPage';
 import DashboardPage from '../pages/DashboardPage';
-import ProductoSection from '../components/ProductoSection';
-import UsuarioSection from '../components/UsuarioSection';
-import ClienteSection from '../components/ClienteSection';
-import CatalogoSection from '../components/CatalogoSection';
-import PedidosSection from '../components/PedidoSection';
+import UsuarioSection from '../components/usuario/UsuarioSection';
+import PedidosSection from '../components/pedido/PedidoSection';
+import ClienteList from '../components/cliente/ClienteList';
+import CatalogoList from '../components/catalogo/CatalogoList';
+import ProductoList from '../components/producto/ProductoList';
 import ProtectedRoute from './ProyecyedRoute';
 import Reports from '../components/reports/Reports';
 import Layout from '../components/layout';
@@ -49,15 +49,15 @@ const createRoutes = (
         },
         {
           path: 'productos',
-          element: <ProductoSection />,
+          element: <ProductoList />,
         },
         {
           path: 'clientes',
-          element: <ClienteSection />,
+          element: <ClienteList />,
         },
         {
           path: 'catalogos',
-          element: <CatalogoSection />,
+          element: <CatalogoList />,
         },
         {
           path: '',

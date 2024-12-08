@@ -1,8 +1,8 @@
 // src/components/UsuarioForm.tsx
 import React, { useState, useEffect } from 'react';
 import { Form, Button, Modal, Alert } from 'react-bootstrap';
-import { Usuario } from '../types/usuario';
-import authService from '../service/auth'; // Add this import
+import { Usuario } from '../../types/usuario';
+import authService from '../../service/auth'; // Add this import
 
 interface UsuarioFormProps {
   show: boolean;

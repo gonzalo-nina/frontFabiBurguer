@@ -4,9 +4,9 @@ import { Button, Alert } from 'react-bootstrap';
 import { Navigate } from 'react-router-dom';
 import UsuarioTable from './UsuarioTable';
 import UsuarioForm from './UsuarioForm';
-import usuarioService from '../service/usuarioService';
-import { Usuario, UserRoles } from '../types/usuario';
-import auth from '../service/auth';
+import usuarioService from '../../service/usuarioService';
+import { Usuario, UserRoles } from '../../types/usuario';
+import auth from '../../service/auth';
 
 const UsuarioSection = () => {
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);

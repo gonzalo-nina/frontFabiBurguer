@@ -1,7 +1,7 @@
 // src/components/UsuarioTable.tsx
 import React from 'react';
 import { Table, Button, Form } from 'react-bootstrap';
-import { Usuario } from '../types/usuario';
+import { Usuario } from '../../types/usuario';
 
 interface UsuarioTableProps {
   usuarios: Usuario[];
