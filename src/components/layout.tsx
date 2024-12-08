@@ -3,7 +3,7 @@ import { Outlet } from 'react-router-dom';
 import { Navbar, Container, Button } from 'react-bootstrap';
 import { LogOut } from 'lucide-react';
 import Sidebar from './Sidebar';
-
+import "../styles/layout.css";
 
 interface LayoutProps {
   username: string;

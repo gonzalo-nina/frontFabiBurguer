@@ -21,7 +21,6 @@ const CatalogoList = () => {
       setLoading(true);
       const data = await CatalogoService.getAllCatalogos();
       setCatalogos(data);
-      console.log('Catalogos loaded:', data);
     } catch (error) {
       console.error('Error loading catalogos:', error);
       setError('Error al cargar catálogos');
@@ -105,6 +104,12 @@ const CatalogoList = () => {
     }
   };
 
+  const handleEdit = (catalogo: Catalogo) => {
+    setSelectedCatalogo(catalogo);
+    setShowForm(true);
+    setError(null);
+  };
+
   return (
     <Container className="py-4">
       {error && (
@@ -142,7 +147,7 @@ const CatalogoList = () => {
             <Col key={catalogo.idCatalogo}>
               <CatalogoCard
                 catalogo={catalogo}
-                onEdit={isAdmin ? handleSave : () => {}}
+                onEdit={isAdmin ? handleEdit : () => {}}
                 onDelete={isAdmin ? handleDelete : () => {}}
                 isAdmin={isAdmin}
               />
