@@ -16,6 +16,7 @@ const PedidosSection = () => {
     const [error, setError] = useState<string | null>(null);
     const [showViewModal, setShowViewModal] = useState(false);
     const [selectedPedidoView, setSelectedPedidoView] = useState<Pedido | null>(null);
+    const [clientes, setClientes] = useState<Cliente[]>([]);
 
   const cargarPedidos = async () => {
     try {
@@ -38,7 +39,17 @@ const PedidosSection = () => {
     cargarPedidos();
   }, []);
 
- 
+  useEffect(() => {
+    const cargarClientes = async () => {
+      try {
+        const clientesData = await clienteService.getAllClientes();
+        setClientes(clientesData);
+      } catch (error) {
+        console.error('Error al cargar clientes:', error);
+      }
+    };
+    cargarClientes();
+  }, []);
 
   const handleDelete = async (id: number) => {
     if (window.confirm('¿Está seguro de eliminar este pedido?')) {
@@ -173,7 +184,9 @@ const PedidosSection = () => {
               <tr key={pedido.idPedido}>
                 <td>{pedido.idPedido}</td>
                 <td>{new Date(pedido.fechaPedido).toLocaleDateString()}</td>
-                <td>{pedido.idCliente}</td>
+                <td>
+                  {clientes.find(cliente => cliente.idCliente === pedido.idCliente)?.nombre || 'Cliente no encontrado'}
+                </td>
                 <td>S/. {pedido.subtotal.toFixed(2)}</td>
                 <td>
                   <Form.Check
