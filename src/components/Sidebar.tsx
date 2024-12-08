@@ -2,7 +2,7 @@
 
 import { NavLink } from 'react-router-dom';
 import { Nav } from 'react-bootstrap';
-import { FaHome, FaBox, FaUsers, FaList } from 'react-icons/fa';
+import { FaHome, FaBox, FaUsers, FaList, FaUserEdit, FaShoppingCart } from 'react-icons/fa';
 import '../styles/Sidebar.css';
 
 const Sidebar = () => {
@@ -13,7 +13,7 @@ const Sidebar = () => {
       </div>
       <Nav className="flex-column">
         <NavLink to="/dashboard" className={({isActive}) => `sidebar-link ${isActive ? 'active' : ''}`}>
-          <FaHome className="sidebar-icon" /> Dashboard
+          <FaHome className="sidebar-icon" /> Menu Principal
         </NavLink>
         <NavLink to="/productos" className={({isActive}) => `sidebar-link ${isActive ? 'active' : ''}`}>
           <FaBox className="sidebar-icon" /> Productos
@@ -25,10 +25,10 @@ const Sidebar = () => {
           <FaList className="sidebar-icon" /> Catálogos
         </NavLink>
         <NavLink to="/pedidos" className={({isActive}) => `sidebar-link ${isActive ? 'active' : ''}`}>
-          <FaList className="sidebar-icon" /> Pedidos
+          <FaShoppingCart className="sidebar-icon" /> Pedidos
         </NavLink>
         <NavLink to="/usuario" className={({isActive}) => `sidebar-link ${isActive ? 'active' : ''}`}>
-          <FaList className="sidebar-icon" /> Usuarios
+          <FaUserEdit className="sidebar-icon" /> Usuarios
         </NavLink>
       </Nav>
     </div>

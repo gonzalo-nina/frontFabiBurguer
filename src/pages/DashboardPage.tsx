@@ -1,4 +1,4 @@
-import { Box, Users, ListOrdered } from 'lucide-react';
+import { Box, Users, ListOrdered, UserPen, ShoppingBag } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import '../styles/Dashboard.css';
 
@@ -6,7 +6,9 @@ const DashboardPage = () => {
   const cards = [
     { title: 'Productos', icon: <Box className="card-icon" />, path: '/productos', desc: 'Gestiona tu inventario' },
     { title: 'Clientes', icon: <Users className="card-icon" />, path: '/clientes', desc: 'Administra tus clientes' },
-    { title: 'Catálogos', icon: <ListOrdered className="card-icon" />, path: '/catalogos', desc: 'Organiza tus productos' }
+    { title: 'Catálogos', icon: <ListOrdered className="card-icon" />, path: '/catalogos', desc: 'Organiza tus productos' },
+    { title: 'Pedidos', icon: <ShoppingBag className="card-icon" />, path: '/catalogos', desc: 'Organiza tus productos' },
+    { title: 'Usuarios', icon: <UserPen className="card-icon" />, path: '/catalogos', desc: 'Organiza tus productos' }
   ];
 
   return (
