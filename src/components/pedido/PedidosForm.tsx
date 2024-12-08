@@ -7,6 +7,7 @@ import { Producto } from '../../types/producto';
 import { Pedido, DetallePedido, PedidoDTO } from '../../types/Pedido';
 import { X, PenSquare } from 'lucide-react';
 import '../../styles/ProductCards.css';
+import '../../styles/PedidosForm.css';
 import pedidoService from '../../service/pedidoService';
 import auth from '../../service/auth'; // Import auth service
 import ClienteForm from '../cliente/ClienteForm'; // 1. Import ClienteForm

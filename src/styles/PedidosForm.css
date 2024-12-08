@@ -106,3 +106,77 @@
   background: var(--danger);
   color: white;
 }
+
+/* Añadir a src/styles/PedidosForm.css */
+
+/* Estilos para la visualización del pedido */
+.pedido-visualizacion {
+  padding: 1rem;
+}
+
+.cliente-nombre {
+  background: rgba(46, 204, 113, 0.1);
+  color: #27ae60;
+  padding: 0.75rem 1.25rem;
+  border-radius: 8px;
+  font-weight: 600;
+  border-left: 4px solid #27ae60;
+  margin-bottom: 2rem;
+}
+
+.productos-grid .producto-card {
+  background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
+  border: 1px solid rgba(0,0,0,0.08);
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  transition: all 0.3s ease;
+}
+
+.productos-grid .producto-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+}
+
+.producto-title {
+  color: #2c3e50;
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.producto-cantidad {
+  background: rgba(52, 152, 219, 0.1);
+  color: #2980b9;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  display: inline-block;
+  margin: 0.5rem 0;
+}
+
+.producto-subtotal {
+  background: rgba(134, 54, 165, 0.1);
+  color: #5d5162;
+  padding: 0.5rem;
+  border-radius: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+}
+
+.notas-section {
+  background: rgba(241, 196, 15, 0.1);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 2rem;
+}
+
+.notas-section h6 {
+  color: #d35400;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.notas-content {
+  color: #7f8c8d;
+  line-height: 1.6;
+}
