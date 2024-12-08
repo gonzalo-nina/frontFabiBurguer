@@ -9,7 +9,7 @@ import { X } from 'lucide-react';
 import '../styles/ProductCards.css';
 import pedidoService from '../service/pedidoService';
 import auth from '../service/auth'; // Import auth service
-
+import ClienteForm from './cliente/ClienteForm'; // 1. Import ClienteForm
 
 interface ProductoSeleccionado extends Producto {
   cantidad: number;
@@ -31,6 +31,7 @@ const PedidosForm: React.FC<PedidosFormProps> = ({ onSubmit, onCancel, selectedP
   const [total, setTotal] = useState(0);
   const [disponibilidadActual, setDisponibilidadActual] = useState<Record<number, number>>({});
   const [stockDisponible, setStockDisponible] = useState<Record<number, number>>({});
+  const [showClienteForm, setShowClienteForm] = useState(false); // 2. Agregar estado
 
   useEffect(() => {
     const cargarDatos = async () => {
@@ -324,29 +325,50 @@ const PedidosForm: React.FC<PedidosFormProps> = ({ onSubmit, onCancel, selectedP
     setProductosSeleccionados(prev => prev.filter(p => p.idProducto !== id));
   };
 
+  const handleSaveCliente = async (cliente: Cliente) => { // 3. Agregar función para manejar nuevo cliente
+    try {
+      const nuevoCliente = await clienteService.createCliente(cliente);
+      setClientes(prev => [...prev, nuevoCliente]);
+      setClienteId(nuevoCliente.idCliente.toString());
+      setShowClienteForm(false);
+    } catch (error) {
+      console.error('Error al crear cliente:', error);
+    }
+  };
+
   return (
     <div className="pedidos-form-container">
       <Form onSubmit={handleSubmit}>
         <Form.Group className="pedidos-form-select mb-4">
           <Form.Label>Cliente</Form.Label>
-          {selectedPedido ? (
-            <div className="form-control-plaintext">
-              {clientes.find(c => c.idCliente === selectedPedido.idCliente)?.nombre || 'Cliente no encontrado'}
-            </div>
-          ) : (
-            <Form.Select
-              value={clienteId}
-              onChange={(e) => setClienteId(e.target.value)}
-              required
-            >
-              <option value="">Seleccione un Cliente</option>
-              {clientes.map(cliente => (
-                <option key={cliente.idCliente} value={cliente.idCliente}>
-                  {`${cliente.idCliente} - ${cliente.nombre}`}
-                </option>
-              ))}
-            </Form.Select>
-          )}
+          <div className="d-flex gap-2">
+            {selectedPedido ? (
+              <div className="form-control-plaintext">
+                {clientes.find(c => c.idCliente === selectedPedido.idCliente)?.nombre || 'Cliente no encontrado'}
+              </div>
+            ) : (
+              <>
+                <Form.Select
+                  value={clienteId}
+                  onChange={(e) => setClienteId(e.target.value)}
+                  required
+                >
+                  <option value="">Seleccione un Cliente</option>
+                  {clientes.map(cliente => (
+                    <option key={cliente.idCliente} value={cliente.idCliente}>
+                      {`${cliente.idCliente} - ${cliente.nombre}`}
+                    </option>
+                  ))}
+                </Form.Select>
+                <Button 
+                  variant="success"
+                  onClick={() => setShowClienteForm(true)}
+                >
+                  +
+                </Button>
+              </>
+            )}
+          </div>
         </Form.Group>
 
         {clienteId && (
@@ -460,6 +482,11 @@ const PedidosForm: React.FC<PedidosFormProps> = ({ onSubmit, onCancel, selectedP
           </Button>
         </div>
       </Form>
+      <ClienteForm // 5. Agregar ClienteForm
+        show={showClienteForm}
+        onHide={() => setShowClienteForm(false)}
+        onSave={handleSaveCliente}
+      />
     </div>
   );
 };
