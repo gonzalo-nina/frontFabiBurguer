@@ -5,6 +5,7 @@ export interface Pedido {
     estadoPedido: boolean;
     subtotal: number;
     detallesPedido?: DetallePedido[];
+    notasAdicionales?: string;
 }
 
 export interface DetallePedido {
@@ -18,6 +19,7 @@ export interface DetallePedido {
   cantidad: number;
   precioUnitario: number;
   subtotal: number;
+  notasAdicionales?: string;
 }
 
 export interface PedidoDTO {

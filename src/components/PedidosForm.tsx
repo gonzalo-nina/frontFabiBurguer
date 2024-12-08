@@ -5,7 +5,7 @@ import productoService from '../service/productoService';
 import { Cliente } from '../types/cliente';
 import { Producto } from '../types/producto';
 import { Pedido, DetallePedido, PedidoDTO } from '../types/Pedido';
-import { X } from 'lucide-react';
+import { X, PenSquare } from 'lucide-react';
 import '../styles/ProductCards.css';
 import pedidoService from '../service/pedidoService';
 import auth from '../service/auth'; // Import auth service
@@ -32,6 +32,8 @@ const PedidosForm: React.FC<PedidosFormProps> = ({ onSubmit, onCancel, selectedP
   const [disponibilidadActual, setDisponibilidadActual] = useState<Record<number, number>>({});
   const [stockDisponible, setStockDisponible] = useState<Record<number, number>>({});
   const [showClienteForm, setShowClienteForm] = useState(false); // 2. Agregar estado
+  const [showNotas, setShowNotas] = useState(false);
+const [notas, setNotas] = useState('');
 
   useEffect(() => {
     const cargarDatos = async () => {
@@ -82,6 +84,7 @@ const PedidosForm: React.FC<PedidosFormProps> = ({ onSubmit, onCancel, selectedP
           console.log('📝 Productos cargados para edición:', productosDelPedido);
           setProductosSeleccionados(productosDelPedido);
           setClienteId(selectedPedido.idCliente.toString());
+          setNotas(selectedPedido.notasAdicionales || ''); // Load notas
         } catch (error) {
           console.error('Error al cargar detalles:', error);
         }
@@ -181,7 +184,7 @@ const PedidosForm: React.FC<PedidosFormProps> = ({ onSubmit, onCancel, selectedP
         // 2. Eliminar detalles existentes
         console.log('🗑️ Eliminando detalles antiguos...');
         for (const detalle of detallesActuales) {
-          if (detalle.idDetallePedido) { // Use correct property name
+          if (detalle.idDetallePedido) {
             await pedidoService.eliminarDetallePedido(detalle.idDetallePedido);
           } else {
             console.warn('⚠️ Detalle encontrado sin ID:', detalle);
@@ -211,13 +214,15 @@ const PedidosForm: React.FC<PedidosFormProps> = ({ onSubmit, onCancel, selectedP
           await pedidoService.crearDetallePedido(detalle);
         }
 
-        // 5. Actualizar subtotal del pedido
+        // 5. Actualizar subtotal y notas del pedido
+        console.log(notas);
         const pedidoActualizado: PedidoDTO = {
           idPedido: selectedPedido.idPedido,
           idCliente: selectedPedido.idCliente,
           estadoPedido: selectedPedido.estadoPedido,
           subtotal: subtotal,
-          fechaPedido: selectedPedido.fechaPedido
+          fechaPedido: selectedPedido.fechaPedido,
+          notasAdicionales: notas || undefined, // Add this line
         };
 
         await pedidoService.actualizarSubtotalPedido(selectedPedido.idPedido, pedidoActualizado);
@@ -230,7 +235,8 @@ const PedidosForm: React.FC<PedidosFormProps> = ({ onSubmit, onCancel, selectedP
         const pedidoDTO: PedidoDTO = {
           idCliente: parseInt(clienteId),
           estadoPedido: false,
-          subtotal: 0 // Initially 0
+          subtotal: 0, // Initially 0
+          notasAdicionales: notas || undefined
         };
     
         console.log('📦 Datos del pedido a crear:', pedidoDTO);
@@ -468,6 +474,32 @@ const PedidosForm: React.FC<PedidosFormProps> = ({ onSubmit, onCancel, selectedP
             </div>
           </div>
         )}
+
+        <div className="notas-section mt-4">
+          <div className="d-flex align-items-center gap-2 mb-3">
+            <Button
+              variant="outline-secondary"
+              size="sm"
+              onClick={() => setShowNotas(!showNotas)}
+              className="d-flex align-items-center gap-2"
+            >
+              <PenSquare size={16} />
+              {showNotas ? 'Ocultar notas' : 'Agregar notas'}
+            </Button>
+          </div>
+
+          {showNotas && (
+            <Form.Group className="mb-3">
+              <Form.Control
+                as="textarea"
+                rows={3}
+                placeholder="Notas adicionales para el pedido..."
+                value={notas}
+                onChange={(e) => setNotas(e.target.value)}
+              />
+            </Form.Group>
+          )}
+        </div>
 
         <div className="d-flex justify-content-end gap-2 mt-4">
           <Button variant="secondary" onClick={onCancel}>

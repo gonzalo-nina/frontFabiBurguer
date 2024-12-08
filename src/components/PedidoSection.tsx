@@ -144,6 +144,14 @@ const PedidosSection = () => {
             </div>
           ))}
         </div>
+        {pedido?.notasAdicionales && (
+        <div className="notas-section mt-4">
+          <h6>Notas Adicionales:</h6>
+          <div className="notas-content p-3 bg-light rounded">
+            {pedido.notasAdicionales}
+          </div>
+        </div>
+      )}
       </div>
     );
   };
