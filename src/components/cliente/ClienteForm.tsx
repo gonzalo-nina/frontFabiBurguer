@@ -41,15 +41,12 @@ const ClienteForm = ({ show, onHide, onSave, cliente }: ClienteFormProps) => {
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
     if (!formData.nombre) newErrors.nombre = 'El nombre es requerido';
-    if (!formData.email) newErrors.email = 'El email es requerido';
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+    if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = 'Email inválido';
     }
-    if (!formData.telefono) newErrors.telefono = 'El teléfono es requerido';
-    if (!/^\d{1,9}$/.test(formData.telefono)) {
+    if (formData.telefono && !/^\d{1,9}$/.test(formData.telefono)) {
       newErrors.telefono = 'Teléfono inválido (máx 9 dígitos)';
     }
-    if (!formData.direccion) newErrors.direccion = 'La dirección es requerida';
     return newErrors;
   };
 

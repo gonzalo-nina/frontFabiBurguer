@@ -16,8 +16,8 @@ const ClienteCard = ({ cliente, onEdit, onDelete }: ClienteCardProps) => {
 
   return (
     <Card className="h-100">
-      <Card.Img 
-        variant="top" 
+      <Card.Img
+        variant="top"
         src={cliente.url}
         alt={cliente.nombre}
         style={{ height: '200px', objectFit: 'cover' }}
@@ -25,12 +25,12 @@ const ClienteCard = ({ cliente, onEdit, onDelete }: ClienteCardProps) => {
       <Card.Body>
         <Card.Title>{cliente.nombre}</Card.Title>
         <div className="mb-3">
-          <p><strong>Email:</strong> {cliente.email}</p>
-          <p><strong>Teléfono:</strong> {cliente.telefono}</p>
-          <p><strong>Dirección:</strong> {cliente.direccion}</p>
+          <p><strong>Email:</strong> {cliente.email || 'No proporcionado'}</p>
+          <p><strong>Teléfono:</strong> {cliente.telefono || 'No proporcionado'}</p>
+          <p><strong>Dirección:</strong> {cliente.direccion || 'No proporcionado'}</p>
         </div>
         <div className="d-flex gap-2 action-buttons">
-          <Button 
+          <Button
             variant="primary"
             size="sm"
             className="action-btn action-btn-edit"
@@ -39,7 +39,7 @@ const ClienteCard = ({ cliente, onEdit, onDelete }: ClienteCardProps) => {
             Editar
           </Button>
           {isAdmin && (
-            <Button 
+            <Button
               variant="danger"
               size="sm"
               className="action-btn action-btn-delete"
