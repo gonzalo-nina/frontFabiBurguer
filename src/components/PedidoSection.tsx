@@ -54,8 +54,19 @@ const PedidosSection = () => {
   const handleDelete = async (id: number) => {
     if (window.confirm('¿Está seguro de eliminar este pedido?')) {
       try {
+        // 1. Obtener detalles del pedido
+        const detalles = await pedidoService.obtenerDetallesPedido(id);
+        
+        // 2. Eliminar cada detalle para que se restauren las cantidades
+        for (const detalle of detalles) {
+          if (detalle.idDetallePedido) {
+            await pedidoService.eliminarDetallePedido(detalle.idDetallePedido);
+          }
+        }
+
+        // 3. Eliminar el pedido
         await pedidoService.eliminarPedido(id);
-        cargarPedidos();
+        await cargarPedidos();
       } catch (error) {
         setError('Error al eliminar el pedido');
         console.error('Error:', error);
