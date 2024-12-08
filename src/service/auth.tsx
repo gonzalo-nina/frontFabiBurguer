@@ -46,7 +46,6 @@ class AuthService {
 
   async login(email: string, clave: string): Promise<usuario | null> {
     try {
-      console.log('📧 Iniciando login:', { email });
       
       const response = await axios.post(API_URL, { email, clave }, {
         headers: {
@@ -55,23 +54,16 @@ class AuthService {
         withCredentials: true
       });
 
-      console.log('📥 Respuesta completa del servidor:', response.data);
 
       if (response.data.jwt) {
         const token = response.data.jwt;
         const decodedToken = jwtDecode<JWTPayload>(token);
         
-        console.log('🔑 Token decodificado completo:', {
-          todasLasPropiedades: Object.keys(decodedToken),
-          contenidoCompleto: decodedToken
-        });
-
         const posiblesRoles = ['rol', 'role', 'authorities', 'scope', 'permission'];
         let userRole = null;
         
         for (const rolKey of posiblesRoles) {
           if (decodedToken[rolKey]) {
-            console.log(`🎯 Rol encontrado en propiedad '${rolKey}':`, decodedToken[rolKey]);
             userRole = decodedToken[rolKey];
             break;
           }
@@ -85,7 +77,6 @@ class AuthService {
           rol: userRole || 'USER' // Valor por defecto si no encontramos el rol
         };
 
-        console.log('👤 Datos finales del usuario:', userData);
 
         localStorage.setItem('user', JSON.stringify(userData));
         this.setAuthHeader(userData.token);
@@ -146,11 +137,7 @@ class AuthService {
       const userStr = localStorage.getItem('user');
       if (userStr) {
         const user = JSON.parse(userStr);
-        console.log('🔑 Token actual:', {
-          exists: !!user.token,
-          preview: user.token?.substring(0, 20)
-        });
-        
+
         // Añadir monitoreo cuando se recupera el usuario
         if (user.token) {
           this.monitorTokenExpiration(user.token);
@@ -197,10 +184,6 @@ class AuthService {
       // Decodificar el token para obtener el rol
       const decodedToken = jwtDecode<JWTPayload>(user.token);
       
-      console.log('🔑 Token decodificado:', {
-        token: decodedToken,
-        properties: Object.keys(decodedToken)
-      });
 
       // Buscar el rol en las posibles propiedades del token
       const posiblesRoles = ['rol', 'role', 'authorities', 'scope', 'permission'];
@@ -208,7 +191,6 @@ class AuthService {
 
       for (const rolKey of posiblesRoles) {
         if (decodedToken[rolKey]) {
-          console.log(`🎯 Rol encontrado en '${rolKey}':`, decodedToken[rolKey]);
           userRole = decodedToken[rolKey];
           break;
         }
@@ -216,11 +198,6 @@ class AuthService {
 
       // Verifica si el rol es ROLE_ADMIN en lugar de solo ADMIN
       const isAdmin = userRole === UserRoles.ADMIN;
-      console.log('👮 Verificación de admin:', { 
-        userRole, 
-        expectedRole: UserRoles.ADMIN,
-        isAdmin 
-      });
       
       return isAdmin;
 

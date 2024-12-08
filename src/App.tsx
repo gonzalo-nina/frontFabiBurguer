@@ -17,22 +17,13 @@ const App: React.FC = () => {
   useEffect(() => {
     const user = auth.getCurrentUser();
     if (user) {
-      console.log('🔄 Usuario recuperado del localStorage:', {
-        email: user.email,
-        usuario: user.usuario,
-        rol: user.rol
-      });
       setIsAuthenticated(true);
       setCurrentUser(user);
     }
   }, []);
 
   const handleLoginSuccess = (user: usuario) => {
-    console.log('✅ Login exitoso:', {
-      email: user.email,
-      usuario: user.usuario,
-      rol: user.rol
-    });
+
     setIsAuthenticated(true);
     setCurrentUser(user);
     

@@ -24,7 +24,6 @@ const ProductoCard = ({ producto, onEdit, onDelete }: ProductoCardProps) => {
         const catalogo = await CatalogoService.getCatalogoById(producto.idCatalogo);
         setCatalogoNombre(catalogo.nombreCatalogo);
       } catch (error) {
-        console.error('Error loading catalogo:', error);
         setCatalogoNombre('No encontrado');
       }
     };

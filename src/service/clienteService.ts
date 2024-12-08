@@ -8,7 +8,6 @@ class ClienteService {
   async getAllClientes(): Promise<Cliente[]> {
     try {
       const response = await axios.get(API_URL);
-      console.log('API Response:', response.data);
       return response.data; // Return data directly since backend matches interface
     } catch (error) {
       console.error('Error fetching clientes:', error);

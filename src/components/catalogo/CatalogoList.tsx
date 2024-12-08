@@ -22,7 +22,6 @@ const CatalogoList = () => {
       const data = await CatalogoService.getAllCatalogos();
       setCatalogos(data);
     } catch (error) {
-      console.error('Error loading catalogos:', error);
       setError('Error al cargar catálogos');
     } finally {
       setLoading(false);
@@ -70,7 +69,6 @@ const CatalogoList = () => {
       setShowForm(false);
       setSelectedCatalogo(undefined);
     } catch (error) {
-      console.error('Error saving catalogo:', error);
       setError('Error al guardar catálogo');
     } finally {
       setLoading(false);
@@ -97,7 +95,6 @@ const CatalogoList = () => {
         await loadCatalogos();
       }
     } catch (error) {
-      console.error('Error deleting catalogo:', error);
       setError('Error al eliminar catálogo');
     } finally {
       setLoading(false);

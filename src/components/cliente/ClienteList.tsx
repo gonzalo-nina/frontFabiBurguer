@@ -21,7 +21,6 @@ const ClienteList = () => {
       const data = await ClienteService.getAllClientes();
       setClientes(data);
     } catch (error) {
-      console.error('Error loading clientes:', error);
       setError('Error al cargar clientes');
     }
   };
@@ -41,7 +40,6 @@ const ClienteList = () => {
       setShowForm(false);
       setSelectedCliente(undefined);
     } catch (error) {
-      console.error('Error saving cliente:', error);
       alert('Error al guardar cliente');
     }
   };
@@ -67,7 +65,6 @@ const ClienteList = () => {
         loadClientes();
       }
     } catch (error) {
-      console.error('Error deleting cliente:', error);
       setError('Error al eliminar cliente');
     }
   };

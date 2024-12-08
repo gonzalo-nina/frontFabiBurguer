@@ -1,6 +1,6 @@
 // src/components/reports/Reports.tsx
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Card, Form } from 'react-bootstrap';
+import { Container, Row, Col, Card, Form, Alert } from 'react-bootstrap';
 import { Bar, Doughnut } from 'react-chartjs-2';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
@@ -17,6 +17,7 @@ import {
 import pedidoService from '../../service/pedidoService';
 import productoService from '../../service/productoService';
 import clienteService from '../../service/clienteService';
+import auth from '../../service/auth';
 import '../../styles/reports.css';
 
 ChartJS.register(
@@ -44,6 +45,17 @@ const Reports = () => {
     totals: number[];
   }>({ labels: [], totals: [] });
   const [isPickerOpen, setIsPickerOpen] = useState(false);
+  const [isAdmin] = useState(() => auth.isAdmin());
+
+  if (!isAdmin) {
+    return (
+      <div className="container mt-4">
+        <Alert variant="warning">
+          No tienes permisos para acceder a esta sección. Esta vista está reservada para administradores.
+        </Alert>
+      </div>
+    );
+  }
 
   const loadData = async () => {
     try {

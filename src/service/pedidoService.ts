@@ -8,10 +8,6 @@ const DETALLE_API_URL = '/api/v1/detalles-pedido';
 class PedidoService {
   private getAuthHeader() {
     const user = auth.getCurrentUser();
-    console.log('🔑 Auth Headers:', {
-      hasToken: !!user?.token,
-      tokenPreview: user?.token?.substring(0, 20) + '...'
-    });
     return {
       headers: {
         Authorization: `Bearer ${user?.token}`
@@ -41,17 +37,9 @@ class PedidoService {
 
   async crearPedido(pedidoDTO: PedidoDTO): Promise<Pedido> {
     try {
-      console.log('📦 Iniciando creación de pedido:', {
-        pedidoDTO,
-        endpoint: API_URL
-      });
 
       const response = await axios.post(API_URL, pedidoDTO, this.getAuthHeader());
       
-      console.log('✅ Pedido creado exitosamente:', {
-        status: response.status,
-        pedidoCreado: response.data
-      });
 
       return response.data;
     } catch (error: any) {
@@ -67,7 +55,6 @@ class PedidoService {
 
   async crearDetallePedido(detalle: DetallePedido): Promise<DetallePedido> {
     try {
-      console.log('📝 Detalle a enviar:', JSON.stringify(detalle, null, 2));
       const response = await axios.post(
         `${DETALLE_API_URL}/crear`, 
         detalle, 
@@ -164,7 +151,6 @@ class PedidoService {
   // Add new method
   async verificarClienteEnPedidos(idCliente: number): Promise<boolean> {
     try {
-      console.log(`${API_URL}/cliente/${idCliente}/existe`)
       const response = await axios.get(
         `${API_URL}/cliente/${idCliente}/existe`,
         this.getAuthHeader()

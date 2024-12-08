@@ -20,7 +20,6 @@ const Login: React.FC<LoginProps> = ({ onLogin, error }) => {
     setIsLoading(true);
 
     try {
-      console.log('Intentando login con:', { email, clave });
       const user = await AuthService.login(email, clave);
       
       if (user) {

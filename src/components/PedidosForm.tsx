@@ -81,7 +81,6 @@ const [notas, setNotas] = useState('');
             };
           }).filter(Boolean) as ProductoSeleccionado[];
 
-          console.log('📝 Productos cargados para edición:', productosDelPedido);
           setProductosSeleccionados(productosDelPedido);
           setClienteId(selectedPedido.idCliente.toString());
           setNotas(selectedPedido.notasAdicionales || ''); // Load notas
@@ -176,18 +175,15 @@ const [notas, setNotas] = useState('');
     
     try {
       if (selectedPedido?.idPedido) {
-        console.log('🔄 Iniciando actualización de pedido:', selectedPedido.idPedido);
 
         // 1. Obtener detalles actuales para limpiarlos
         const detallesActuales = await pedidoService.obtenerDetallesPedido(selectedPedido.idPedido);
         
         // 2. Eliminar detalles existentes
-        console.log('🗑️ Eliminando detalles antiguos...');
         for (const detalle of detallesActuales) {
           if (detalle.idDetallePedido) {
             await pedidoService.eliminarDetallePedido(detalle.idDetallePedido);
           } else {
-            console.warn('⚠️ Detalle encontrado sin ID:', detalle);
           }
         }
 
@@ -197,7 +193,6 @@ const [notas, setNotas] = useState('');
         );
 
         // 4. Crear nuevos detalles
-        console.log('📝 Creando nuevos detalles...');
         for (const producto of productosSeleccionados) {
           const detalle: DetallePedido = {
             pedido: {
@@ -215,7 +210,6 @@ const [notas, setNotas] = useState('');
         }
 
         // 5. Actualizar subtotal y notas del pedido
-        console.log(notas);
         const pedidoActualizado: PedidoDTO = {
           idPedido: selectedPedido.idPedido,
           idCliente: selectedPedido.idCliente,
@@ -239,12 +233,9 @@ const [notas, setNotas] = useState('');
           notasAdicionales: notas || undefined
         };
     
-        console.log('📦 Datos del pedido a crear:', pedidoDTO);
         const pedidoCreado = await pedidoService.crearPedido(pedidoDTO);
-        console.log('✅ Pedido base creado:', pedidoCreado);
     
         // 2. Create detalles
-        console.log('📝 Creando detalles para', productosSeleccionados.length, 'productos');
         
         if (pedidoCreado.idPedido) {
           for (const producto of productosSeleccionados) {
@@ -260,7 +251,6 @@ const [notas, setNotas] = useState('');
               subtotal: producto.precio * producto.cantidad
             };
     
-            console.log('📦 Enviando detalle:', detalle);
             await pedidoService.crearDetallePedido(detalle);
           }
     
