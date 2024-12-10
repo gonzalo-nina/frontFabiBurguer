@@ -17,7 +17,7 @@ interface JWTPayload {
 }
 
 class AuthService {
-  private monitorTokenExpiration(token: string) {
+  public monitorTokenExpiration(token: string) {
     try {
       const decodedToken = jwtDecode<JWTPayload>(token);
       const currentTime = Date.now() / 1000;
@@ -58,14 +58,12 @@ class AuthService {
 
   async login(email: string, clave: string): Promise<usuario | null> {
     try {
-      
       const response = await axios.post(API_URL, { email, clave }, {
         headers: {
           'Content-Type': 'application/json',
         },
         withCredentials: true
       });
-
 
       if (response.data.jwt) {
         const token = response.data.jwt;
@@ -89,23 +87,16 @@ class AuthService {
           rol: userRole || 'USER' // Valor por defecto si no encontramos el rol
         };
 
-
         localStorage.setItem('user', JSON.stringify(userData));
         this.setAuthHeader(userData.token);
-        
-        // Añadir monitoreo después de login exitoso
-        this.monitorTokenExpiration(token);
         
         return userData;
       }
       
       return null;
     } catch (error: any) {
-      console.error('❌ Error en login:', {
-        mensaje: error.message,
-        detallesRespuesta: error.response?.data,
-        statusCode: error.response?.status
-      });
+      console.error('❌ Error en login:', error);
+      // No llamar a logout aquí, solo manejar el error
       throw new Error(error.response?.data?.message || 'Credenciales inválidas');
     }
   }

@@ -1,9 +1,13 @@
 // src/config/axios.ts
 import axios from 'axios';
 import auth from '../service/auth';
+import { toast } from 'react-toastify';
 
 const axiosInstance = axios.create({
-  baseURL: 'http://localhost:8080'
+  baseURL: 'http://localhost:8080',
+  headers: {
+    'X-Requested-With': 'XMLHttpRequest'
+  }
 });
 
 // Request interceptor - mantener igual
@@ -30,10 +34,13 @@ axiosInstance.interceptors.response.use(
 
       switch (status) {
         case 401:
-          console.log('🔐 Error de autenticación:', message);
-          auth.logout(); // Mantener el logout
-          alert('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.');
-          window.location.href = '/login';
+          // Solo manejar expiración de token si ya estábamos autenticados
+          if (auth.getCurrentUser()?.token) {
+            console.log('🔐 Sesión expirada:', message);
+            auth.logout();
+            toast.warning('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.');
+            window.location.href = '/login';
+          }
           break;
 
         case 403:

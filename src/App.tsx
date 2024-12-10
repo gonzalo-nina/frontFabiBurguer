@@ -34,7 +34,10 @@ const App: React.FC = () => {
     toast.success(`¡Bienvenido ${rolTexto}, ${user.usuario}! 🎉`, {
       icon: "🌟"
     });
-    
+    if (user.token) {
+      auth.monitorTokenExpiration(user.token);
+    }
+
     navigate('/dashboard');
   };
 
