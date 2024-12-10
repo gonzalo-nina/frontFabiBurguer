@@ -1,6 +1,7 @@
 import axios from '../config/axios';
 import { jwtDecode } from 'jwt-decode';
 import { usuario, UserRoles } from '../types/usuario';
+import { toast } from 'react-toastify';
 
 const API_URL = '/api/v1/autenticacion/signin';
 
@@ -31,16 +32,27 @@ class AuthService {
         setTimeout(() => {
           console.log('⌛ Token expirado - cerrando sesión');
           this.logout();
-          alert('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.');
+          toast.warning('Tu sesión ha expirado. Por favor, inicia sesión nuevamente. ⏰', {
+            position: "top-center",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+          });
           window.location.href = '/login';
         }, timeLeft * 1000);
       } else {
         this.logout();
-        alert('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.');
+        toast.warning('Tu sesión ha expirado. Por favor, inicia sesión nuevamente. ⏰', {
+          position: "top-center",
+          autoClose: 5000
+        });
         window.location.href = '/login';
       }
     } catch (error) {
       console.error('❌ Error monitoreando token:', error);
+      toast.error('Error al verificar la sesión ❌');
     }
   }
 

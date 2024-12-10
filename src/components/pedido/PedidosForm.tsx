@@ -144,15 +144,28 @@ const [notas, setNotas] = useState('');
   const handleAjustarCantidad = (productoId: number, incremento: number) => {
     const productoActual = productosSeleccionados.find(p => p.idProducto === productoId);
     if (!productoActual) return;
-
+  
     const nuevaCantidad = productoActual.cantidad + incremento;
-    const disponibilidadBase = productos.find(p => p.idProducto === productoId)?.disponibilidad || 0;
-    const otrosProductosSeleccionados = productosSeleccionados.filter(p => p.idProducto !== productoId);
-    const cantidadOtrosProductos = otrosProductosSeleccionados.reduce((sum, p) => sum + p.cantidad, 0);
-    const disponibilidadMaxima = disponibilidadBase - cantidadOtrosProductos;
-
+    const producto = productos.find(p => p.idProducto === productoId);
+    if (!producto) return;
+  
+    // Calculamos la disponibilidad considerando la cantidad actual
+    const disponibilidadTotal = producto.disponibilidad;
+    const otrosProductosSeleccionados = productosSeleccionados
+      .filter(p => p.idProducto !== productoId)
+      .reduce((sum, p) => sum + p.cantidad, 0);
+    
+    const disponibilidadMaxima = disponibilidadTotal + productoActual.cantidad - otrosProductosSeleccionados;
+  
     if (nuevaCantidad > 0 && nuevaCantidad <= disponibilidadMaxima) {
       updateCantidad(productoId, nuevaCantidad);
+      
+      // Actualizamos el subtotal
+      const nuevoTotal = productosSeleccionados.reduce((sum, p) => {
+        const cantidad = p.idProducto === productoId ? nuevaCantidad : p.cantidad;
+        return sum + (p.precio * cantidad);
+      }, 0);
+      setTotal(nuevoTotal);
     }
   };
 
@@ -291,21 +304,29 @@ const [notas, setNotas] = useState('');
     const productoActual = productosSeleccionados.find(p => p.idProducto === productoId);
     if (!productoActual) return;
 
+    // Calculamos la disponibilidad real considerando el pedido actual
+    const disponibilidadTotal = producto.disponibilidad;
     const cantidadActual = productoActual.cantidad;
-    const diferencia = nuevaCantidad - cantidadActual;
-    const nuevoStock = stockDisponible[productoId] - diferencia;
+    const otrosProductosSeleccionados = productosSeleccionados
+      .filter(p => p.idProducto !== productoId)
+      .reduce((sum, p) => sum + p.cantidad, 0);
+    
+    const disponibilidadMaxima = disponibilidadTotal + cantidadActual - otrosProductosSeleccionados;
 
-    if (nuevoStock >= 0 && nuevaCantidad > 0) {
+    // Validamos que la nueva cantidad sea válida
+    if (nuevaCantidad > 0 && nuevaCantidad <= disponibilidadMaxima) {
       setProductosSeleccionados(prev =>
         prev.map(p => p.idProducto === productoId 
           ? { ...p, cantidad: nuevaCantidad }
           : p
         )
       );
-      
+
+      // Actualizamos el stock disponible
+      const diferencia = nuevaCantidad - cantidadActual;
       setStockDisponible(prev => ({
         ...prev,
-        [productoId]: nuevoStock
+        [productoId]: prev[productoId] - diferencia
       }));
     }
   };
@@ -435,7 +456,8 @@ const [notas, setNotas] = useState('');
                       <Button 
                         size="sm" 
                         variant="outline-secondary"
-                        onClick={() => updateCantidad(producto.idProducto!, Math.max(1, producto.cantidad - 1))}
+                        onClick={() => handleAjustarCantidad(producto.idProducto!, -1)}
+                        disabled={producto.cantidad <= 1}
                       >
                         -
                       </Button>
@@ -443,7 +465,8 @@ const [notas, setNotas] = useState('');
                       <Button
                         size="sm"
                         variant="outline-secondary" 
-                        onClick={() => updateCantidad(producto.idProducto!, Math.min(producto.disponibilidad, producto.cantidad + 1))}
+                        onClick={() => handleAjustarCantidad(producto.idProducto!, 1)}
+                        disabled={stockDisponible[producto.idProducto] <= 0}
                       >
                         +
                       </Button>

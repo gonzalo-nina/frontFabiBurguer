@@ -4,6 +4,8 @@ import AuthService from '../service/auth';
 import { usuario } from '../types/usuario';
 import logoImg from '../IMG/imagen_2024-10-28_234052607-removebg-preview.png';
 import fabiLogoImg from '../IMG/FabiLogo.jpeg';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 interface LoginProps {
   onLogin: (user: usuario) => void;
@@ -18,17 +20,34 @@ const Login: React.FC<LoginProps> = ({ onLogin, error }) => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
+    
+    // Show loading toast
+    const loadingToast = toast.loading('Iniciando sesión...', {
+      position: "top-right"
+    });
 
     try {
       const user = await AuthService.login(email, clave);
       
       if (user) {
-        alert('Login exitoso');
+        // Dismiss loading and show success
+        toast.update(loadingToast, {
+          render: "¡Bienvenido de vuelta! 🎉",
+          type: "success",
+          isLoading: false,
+          autoClose: 3000
+        });
         onLogin(user);
       }
     } catch (error: any) {
       console.error('Error en login:', error);
-      alert('Error de autenticación: ' + (error.message || 'Usuario o contraseña incorrectos'));
+      // Dismiss loading and show error
+      toast.update(loadingToast, {
+        render: `Error de autenticación: ${error.message || 'Usuario o contraseña incorrectos'} ❌`,
+        type: "error",
+        isLoading: false,
+        autoClose: 4000
+      });
     } finally {
       setIsLoading(false);
     }

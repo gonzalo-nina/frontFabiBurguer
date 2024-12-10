@@ -1,6 +1,6 @@
 // src/components/producto/ProductoList.tsx
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Button, Alert, Form, InputGroup } from 'react-bootstrap';
+import { Container, Row, Col, Button, Alert, Form, InputGroup, Modal } from 'react-bootstrap';
 import { Search } from 'lucide-react';
 import ProductoCard from './ProductoCard';
 import ProductoForm from './ProductoForm';
@@ -9,6 +9,7 @@ import ProductoService from '../../service/productoService';
 import pedidoService from '../../service/pedidoService';
 import AuthService from '../../service/auth'; // Add this
 import '../../styles/barraBusqueda.css'
+import { toast } from 'react-toastify'; // Add this
 
 const ProductoList = () => {
   const [productos, setProductos] = useState<Producto[]>([]);
@@ -18,6 +19,8 @@ const ProductoList = () => {
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState<'none' | 'price-asc' | 'price-desc' | 'stock-asc' | 'stock-desc'>('none');
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [productoToDelete, setProductoToDelete] = useState<number | null>(null);
 
   const isAdmin = AuthService.isAdmin(); // Add this
 
@@ -52,11 +55,12 @@ const ProductoList = () => {
         );
 
         if (productoExistente) {
-          setError('Ya existe un producto con este nombre');
+          toast.error('Ya existe un producto con este nombre ❌');
           return;
         }
 
         await ProductoService.updateProducto(selectedProducto.idProducto, producto);
+        toast.success('Producto actualizado exitosamente 🎉');
       } else {
         // Verificar si el nombre ya existe para nuevo producto
         const productoExistente = productos.find(
@@ -64,11 +68,12 @@ const ProductoList = () => {
         );
 
         if (productoExistente) {
-          setError('Ya existe un producto con este nombre');
+          toast.error('Ya existe un producto con este nombre ❌');
           return;
         }
 
         await ProductoService.createProducto(producto);
+        toast.success('Producto creado exitosamente 🎉');
       }
 
       await loadProductos();
@@ -76,7 +81,7 @@ const ProductoList = () => {
       setSelectedProducto(undefined);
     } catch (error) {
       console.error('Error saving producto:', error);
-      setError('Error al guardar producto');
+      toast.error('Error al guardar producto ❌');
     } finally {
       setLoading(false);
     }
@@ -90,19 +95,31 @@ const ProductoList = () => {
       const tieneDetalles = await pedidoService.verificarProductoEnDetalles(id);
 
       if (tieneDetalles) {
-        setError('No se puede eliminar el producto porque está siendo usado en pedidos');
+        toast.error('No se puede eliminar el producto porque está siendo usado en pedidos ❌');
         return;
       }
 
-      if (window.confirm('¿Está seguro de eliminar este producto?')) {
-        await ProductoService.deleteProducto(id);
-        await loadProductos();
-      }
+      setProductoToDelete(id);
+      setShowDeleteModal(true);
     } catch (error) {
-      console.error('Error deleting producto:', error);
-      setError('Error al eliminar producto');
+      toast.error('Error al verificar el producto ❌');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!productoToDelete) return;
+    
+    try {
+      await ProductoService.deleteProducto(productoToDelete);
+      await loadProductos();
+      toast.success('Producto eliminado exitosamente 🗑️');
+    } catch (error) {
+      toast.error('Error al eliminar el producto ❌');
+    } finally {
+      setShowDeleteModal(false);
+      setProductoToDelete(null);
     }
   };
 
@@ -203,10 +220,10 @@ const ProductoList = () => {
             </Col>
           ))}
           {getFilteredAndSortedProducts().length === 0 && !loading && (
-            <Col xs={12}>
-              <Alert variant="info">
+            <Col xs={12} className="text-center mt-4">
+              <p className="text-muted">
                 No se encontraron productos que coincidan con la búsqueda
-              </Alert>
+              </p>
             </Col>
           )}
         </Row>
@@ -224,6 +241,23 @@ const ProductoList = () => {
           producto={selectedProducto}
         />
       )}
+
+      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirmar Eliminación</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          ¿Está seguro de eliminar este producto? Esta acción no se puede deshacer.
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
+            Cancelar
+          </Button>
+          <Button variant="danger" onClick={handleConfirmDelete}>
+            Eliminar
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </Container>
   );
 };

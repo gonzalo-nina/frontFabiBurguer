@@ -1,12 +1,12 @@
 // src/components/UsuarioSection.tsx
-import React, { useState, useEffect } from 'react';
-import { Button, Alert } from 'react-bootstrap';
-import { Navigate } from 'react-router-dom';
+import  { useState, useEffect } from 'react';
+import { Button, Alert, Modal } from 'react-bootstrap';
 import UsuarioTable from './UsuarioTable';
 import UsuarioForm from './UsuarioForm';
 import usuarioService from '../../service/usuarioService';
 import { Usuario, UserRoles } from '../../types/usuario';
 import auth from '../../service/auth';
+import { toast } from 'react-toastify';
 
 const UsuarioSection = () => {
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
@@ -17,6 +17,10 @@ const UsuarioSection = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [currentUserEmail, setCurrentUserEmail] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [usuarioToDelete, setUsuarioToDelete] = useState<number | null>(null);
+  const [showToggleModal, setShowToggleModal] = useState(false);
+  const [userToToggle, setUserToToggle] = useState<{id: number, status: boolean, email: string} | null>(null);
 
   useEffect(() => {
     const checkUserAccess = () => {
@@ -52,6 +56,13 @@ const UsuarioSection = () => {
     }
   };
 
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+      setError(null);
+    }
+  }, [error]);
+
   if (loading) {
     return <div>Cargando...</div>;
   }
@@ -81,33 +92,48 @@ const UsuarioSection = () => {
   };
 
   const handleDelete = async (id: number) => {
-    if (window.confirm('¿Está seguro de eliminar este usuario?')) {
-      try {
-        await usuarioService.deleteUsuario(id);
-        loadUsuarios();
-      } catch (err) {
-        setError('Error al eliminar usuario');
-      }
+    setUsuarioToDelete(id);
+    setShowDeleteModal(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!usuarioToDelete) return;
+    try {
+      await usuarioService.deleteUsuario(usuarioToDelete);
+      loadUsuarios();
+      toast.success('Usuario eliminado exitosamente 🗑️');
+    } catch (err) {
+      toast.error('Error al eliminar usuario ❌');
+    } finally {
+      setShowDeleteModal(false);
+      setUsuarioToDelete(null);
     }
   };
 
   const handleToggleActive = async (id: number, currentStatus: boolean, userEmail: string) => {
     if (userEmail === currentUserEmail) {
-      setError('No puedes deshabilitar tu propia cuenta');
+      toast.error('No puedes deshabilitar tu propia cuenta ⚠️');
       return;
     }
+    setUserToToggle({id, status: currentStatus, email: userEmail});
+    setShowToggleModal(true);
+  };
 
-    if (window.confirm(`¿Está seguro de ${currentStatus ? 'deshabilitar' : 'habilitar'} este usuario?`)) {
-      try {
-        if (currentStatus) {
-          await usuarioService.deshabilitarUsuario(id);
-        } else {
-          await usuarioService.habilitarUsuario(id);
-        }
-        await loadUsuarios();
-      } catch (err) {
-        setError(`Error al ${currentStatus ? 'deshabilitar' : 'habilitar'} usuario`);
+  const handleConfirmToggle = async () => {
+    if (!userToToggle) return;
+    try {
+      if (userToToggle.status) {
+        await usuarioService.deshabilitarUsuario(userToToggle.id);
+      } else {
+        await usuarioService.habilitarUsuario(userToToggle.id);
       }
+      await loadUsuarios();
+      toast.success(`Usuario ${userToToggle.status ? 'deshabilitado' : 'habilitado'} exitosamente 🔄`);
+    } catch (err) {
+      toast.error(`Error al ${userToToggle.status ? 'deshabilitar' : 'habilitar'} usuario ❌`);
+    } finally {
+      setShowToggleModal(false);
+      setUserToToggle(null);
     }
   };
 
@@ -126,12 +152,6 @@ const UsuarioSection = () => {
         </Button>
       </div>
 
-      {error && 
-        <Alert variant="danger" onClose={() => setError(null)} dismissible>
-          {error}
-        </Alert>
-      }
-
       <UsuarioTable 
         usuarios={usuarios} 
         onEdit={(usuario) => {
@@ -149,6 +169,40 @@ const UsuarioSection = () => {
         usuarioEdit={selectedUsuario}
         currentUserEmail={currentUserEmail}
       />
+
+      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirmar Eliminación</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          ¿Está seguro que desea eliminar este usuario? Esta acción no se puede deshacer.
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
+            Cancelar
+          </Button>
+          <Button variant="danger" onClick={handleConfirmDelete}>
+            Eliminar
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      <Modal show={showToggleModal} onHide={() => setShowToggleModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirmar Cambio de Estado</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          ¿Está seguro de {userToToggle?.status ? 'deshabilitar' : 'habilitar'} este usuario?
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowToggleModal(false)}>
+            Cancelar
+          </Button>
+          <Button variant="primary" onClick={handleConfirmToggle}>
+            Confirmar
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };

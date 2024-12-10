@@ -1,6 +1,6 @@
 // src/components/catalogo/CatalogoList.tsx
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Button, Alert, Form, InputGroup } from 'react-bootstrap';
+import { Container, Row, Col, Button, Alert, Form, InputGroup, Modal } from 'react-bootstrap';
 import CatalogoCard from './CatalogoCard';
 import CatalogoForm from './CatalogoForm';
 import { Catalogo } from '../../types/catalogo';
@@ -8,6 +8,7 @@ import CatalogoService from '../../service/catalogoService';
 import ProductoService from '../../service/productoService';
 import AuthService from '../../service/auth';
 import { Search } from 'lucide-react'; // Para el ícono de búsqueda
+import { toast } from 'react-toastify';
 import '../../styles/barraBusqueda.css'
 
 const CatalogoList = () => {
@@ -18,6 +19,8 @@ const CatalogoList = () => {
   const [loading, setLoading] = useState(false);
   const isAdmin = AuthService.isAdmin();
   const [searchTerm, setSearchTerm] = useState('');
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [catalogoToDelete, setCatalogoToDelete] = useState<number | null>(null);
 
   const loadCatalogos = async () => {
     try {
@@ -79,28 +82,39 @@ const CatalogoList = () => {
   };
 
   const handleDelete = async (id: number) => {
+    setCatalogoToDelete(id);
+    setShowDeleteModal(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!catalogoToDelete) return;
+
     try {
       setLoading(true);
       setError(null);
 
-      // 1. Verificar si hay productos que usen este catálogo
       const productos = await ProductoService.getAllProductos();
-      const productosRelacionados = productos.filter(p => p.idCatalogo === id);
+      const productosRelacionados = productos.filter(p => p.idCatalogo === catalogoToDelete);
 
       if (productosRelacionados.length > 0) {
-        setError(`No se puede eliminar el catálogo porque está siendo usado por ${productosRelacionados.length} producto(s)`);
+        toast.error(`No se puede eliminar el catálogo porque está siendo usado por ${productosRelacionados.length} producto(s) 🚫`);
         return;
       }
 
-      // 2. Si no hay productos relacionados, confirmar eliminación
-      if (window.confirm('¿Está seguro de eliminar este catálogo?')) {
-        await CatalogoService.deleteCatalogo(id);
-        await loadCatalogos();
-      }
+      await CatalogoService.deleteCatalogo(catalogoToDelete);
+      await loadCatalogos();
+      
+      toast.success('¡Catálogo eliminado exitosamente! 🗑️', {
+        position: "top-right",
+        autoClose: 3000
+      });
+
     } catch (error) {
-      setError('Error al eliminar catálogo');
+      toast.error('Error al eliminar catálogo ❌');
     } finally {
       setLoading(false);
+      setShowDeleteModal(false);
+      setCatalogoToDelete(null);
     }
   };
 
@@ -115,13 +129,15 @@ const CatalogoList = () => {
     catalogo.nombreCatalogo.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+      setError(null);
+    }
+  }, [error]);
+
   return (
     <Container className="py-4">
-      {error && (
-        <Alert variant="danger" onClose={() => setError(null)} dismissible>
-          {error}
-        </Alert>
-      )}
 
       <Row className="mb-4">
         <Col>
@@ -176,10 +192,10 @@ const CatalogoList = () => {
             </Col>
           ))}
           {filteredCatalogos.length === 0 && !loading && (
-            <Col xs={12}>
-              <Alert variant="info">
+            <Col xs={12} className="text-center mt-4">
+              <p className="text-muted">
                 No se encontraron catálogos que coincidan con la búsqueda
-              </Alert>
+              </p>
             </Col>
           )}
         </Row>
@@ -197,6 +213,23 @@ const CatalogoList = () => {
           catalogo={selectedCatalogo}
         />
       )}
+
+      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirmar Eliminación</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          ¿Está seguro que desea eliminar este catálogo? Esta acción no se puede deshacer.
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
+            Cancelar
+          </Button>
+          <Button variant="danger" onClick={handleConfirmDelete}>
+            Eliminar
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </Container>
   );
 };

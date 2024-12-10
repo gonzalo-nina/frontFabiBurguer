@@ -7,6 +7,7 @@ import clienteService from '../../service/clienteService';
 import { Cliente } from '../../types/cliente';
 import productoService from '../../service/productoService';
 import { Producto } from '../../types/producto';
+import { toast } from 'react-toastify';
 
 const PedidosSection = () => {
     const [pedidos, setPedidos] = useState<Pedido[]>([]);
@@ -17,6 +18,10 @@ const PedidosSection = () => {
     const [showViewModal, setShowViewModal] = useState(false);
     const [selectedPedidoView, setSelectedPedidoView] = useState<Pedido | null>(null);
     const [clientes, setClientes] = useState<Cliente[]>([]);
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [pedidoToComplete, setPedidoToComplete] = useState<{id: number, estado: boolean} | null>(null);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [pedidoToDelete, setPedidoToDelete] = useState<number | null>(null);
 
   const cargarPedidos = async () => {
     try {
@@ -51,26 +56,42 @@ const PedidosSection = () => {
     cargarClientes();
   }, []);
 
-  const handleDelete = async (id: number) => {
-    if (window.confirm('¿Está seguro de eliminar este pedido?')) {
-      try {
-        // 1. Obtener detalles del pedido
-        const detalles = await pedidoService.obtenerDetallesPedido(id);
-        
-        // 2. Eliminar cada detalle para que se restauren las cantidades
-        for (const detalle of detalles) {
-          if (detalle.idDetallePedido) {
-            await pedidoService.eliminarDetallePedido(detalle.idDetallePedido);
-          }
-        }
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+      setError(null);
+    }
+  }, [error]);
 
-        // 3. Eliminar el pedido
-        await pedidoService.eliminarPedido(id);
-        await cargarPedidos();
-      } catch (error) {
-        setError('Error al eliminar el pedido');
-        console.error('Error:', error);
+  const handleDelete = (id: number) => {
+    setPedidoToDelete(id);
+    setShowDeleteModal(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!pedidoToDelete) return;
+    
+    try {
+      // 1. Obtener detalles del pedido
+      const detalles = await pedidoService.obtenerDetallesPedido(pedidoToDelete);
+      
+      // 2. Eliminar cada detalle para que se restauren las cantidades
+      for (const detalle of detalles) {
+        if (detalle.idDetallePedido) {
+          await pedidoService.eliminarDetallePedido(detalle.idDetallePedido);
+        }
       }
+
+      // 3. Eliminar el pedido
+      await pedidoService.eliminarPedido(pedidoToDelete);
+      await cargarPedidos();
+      toast.success('Pedido eliminado exitosamente 🗑️');
+    } catch (error) {
+      toast.error('Error al eliminar el pedido ❌');
+      console.error('Error:', error);
+    } finally {
+      setShowDeleteModal(false);
+      setPedidoToDelete(null);
     }
   };
 
@@ -80,12 +101,13 @@ const PedidosSection = () => {
       // Si es un pedido existente (edición)
       if (selectedPedido?.idPedido) {
         await pedidoService.actualizarPedido(selectedPedido.idPedido, pedido);
+        toast.success('Pedido actualizado exitosamente 🎉');
       }
       // NO necesitamos crear el pedido aquí porque ya fue creado en PedidosForm
       setShowModal(false);
       await cargarPedidos();
     } catch (error) {
-      setError('Error al guardar el pedido');
+      toast.error('Error al guardar el pedido ❌');
       console.error('Error:', error);
     } finally {
       setLoading(false);
@@ -93,12 +115,23 @@ const PedidosSection = () => {
   };
 
   const handleEstado = async (id: number, estado: boolean) => {
+    setPedidoToComplete({id, estado});
+    setShowConfirmModal(true);
+  };
+
+  const handleConfirmComplete = async () => {
+    if (!pedidoToComplete) return;
+    
     try {
-      await pedidoService.actualizarEstadoPedido(id, estado);
-      cargarPedidos();
+      await pedidoService.actualizarEstadoPedido(pedidoToComplete.id, pedidoToComplete.estado);
+      await cargarPedidos();
+      toast.success('Estado del pedido actualizado exitosamente 🎉');
     } catch (error) {
-      setError('Error al actualizar el estado del pedido');
+      toast.error('Error al actualizar el estado del pedido ❌');
       console.error('Error:', error);
+    } finally {
+      setShowConfirmModal(false);
+      setPedidoToComplete(null);
     }
   };
 
@@ -181,8 +214,6 @@ const PedidosSection = () => {
           Nuevo Pedido
         </Button>
       </div>
-
-      {error && <Alert variant="danger" onClose={() => setError(null)} dismissible>{error}</Alert>}
 
       {loading ? (
         <div className="text-center">Cargando...</div>
@@ -276,6 +307,40 @@ const PedidosSection = () => {
   <Modal.Body>
     <PedidoVisualizacion pedido={selectedPedidoView} />
   </Modal.Body>
+</Modal>
+
+<Modal show={showConfirmModal} onHide={() => setShowConfirmModal(false)}>
+  <Modal.Header closeButton>
+    <Modal.Title>Confirmar Cambio de Estado</Modal.Title>
+  </Modal.Header>
+  <Modal.Body>
+    ¿Está seguro de {pedidoToComplete?.estado ? 'completar' : 'desmarcar como completado'} este pedido?
+  </Modal.Body>
+  <Modal.Footer>
+    <Button variant="secondary" onClick={() => setShowConfirmModal(false)}>
+      Cancelar
+    </Button>
+    <Button variant="primary" onClick={handleConfirmComplete}>
+      Confirmar
+    </Button>
+  </Modal.Footer>
+</Modal>
+
+<Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
+  <Modal.Header closeButton>
+    <Modal.Title>Confirmar Eliminación</Modal.Title>
+  </Modal.Header>
+  <Modal.Body>
+    ¿Está seguro de eliminar este pedido? Esta acción no se puede deshacer.
+  </Modal.Body>
+  <Modal.Footer>
+    <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
+      Cancelar
+    </Button>
+    <Button variant="danger" onClick={handleConfirmDelete}>
+      Eliminar
+    </Button>
+  </Modal.Footer>
 </Modal>
     </div>
   );

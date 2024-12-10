@@ -5,6 +5,8 @@ import auth from './service/auth';
 import './App.css';
 import './styles/variable.css';
 import './styles/common.css';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 import grungeBackground from './IMG/grunge-background-ideal-halloween.jpg';
 import createRoutes from './router/routes';
@@ -29,7 +31,9 @@ const App: React.FC = () => {
     
     // Mensaje de bienvenida personalizado según el rol
     const rolTexto = user.rol === 'ADMIN' ? 'Administrador' : 'Usuario';
-    alert(`Bienvenido ${rolTexto}, ${user.usuario}`);
+    toast.success(`¡Bienvenido ${rolTexto}, ${user.usuario}! 🎉`, {
+      icon: "🌟"
+    });
     
     navigate('/dashboard');
   };
@@ -53,6 +57,7 @@ const App: React.FC = () => {
   return (
     <div style={{ backgroundImage: `url(${grungeBackground})` }} className="app-background">
       {element}
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 };

@@ -28,4 +28,5 @@ export interface PedidoDTO {
     fechaPedido?: string;
     estadoPedido: boolean;
     subtotal: number;
+    notasAdicionales?: string;
 }
