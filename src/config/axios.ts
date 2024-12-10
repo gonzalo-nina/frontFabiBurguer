@@ -32,40 +32,42 @@ axiosInstance.interceptors.response.use(
       const status = error.response.status;
       const message = error.response.data?.message || 'Error en la operación';
 
-      switch (status) {
-        case 401:
-          // Solo manejar expiración de token si ya estábamos autenticados
-          if (auth.getCurrentUser()?.token) {
-            console.log('🔐 Sesión expirada:', message);
-            auth.logout();
-            toast.warning('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.');
-            window.location.href = '/login';
-          }
-          break;
+      try {
+        switch (status) {
+          case 401:
+            // Verificar si es un error de login o token expirado
+            if (auth.getCurrentUser()?.token) {
+              console.log('🔐 Sesión expirada:', message);
+              auth.logout();
+              toast.warning('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.');
+              window.location.href = '/login';
+            } else {
+              // Error de login - manejar silenciosamente
+              console.debug('🔒 Intento de login fallido');
+            }
+            break;
 
-        case 403:
-          console.log('🚫 Error de autorización:', message);
-          alert('No tienes permisos para realizar esta acción.');
-          break;
+          case 403:
+            console.warn('🚫 Error de autorización:', message);
+            toast.error('No tienes permisos para realizar esta acción.');
+            break;
 
-        case 404:
-          console.log('❌ Recurso no encontrado:', message);
-          alert('El recurso solicitado no existe.');
-          break;
+          case 404:
+            console.warn('❌ Recurso no encontrado:', message);
+            toast.error('El recurso solicitado no existe.');
+            break;
 
-        case 400:
-          console.log('⚠️ Error de validación:', message);
-          alert(`Error en la solicitud: ${message}`);
-          break;
+          case 400:
+            console.warn('⚠️ Error de validación:', message);
+            toast.error(`Error en la solicitud: ${message}`);
+            break;
 
-        case 500:
-          console.log('💥 Error del servidor:', message);
-          alert('Error interno del servidor. Por favor, intenta más tarde.');
-          break;
-
-        default:
-          console.log(`❗ Error ${status}:`, message);
-          alert('Ha ocurrido un error. Por favor, intenta más tarde.');
+          default:
+            console.warn(`⚠️ Error ${status}:`, message);
+            toast.error('Ha ocurrido un error inesperado');
+        }
+      } catch (handlingError) {
+        console.debug('Error manejando respuesta:', handlingError);
       }
     } else if (error.request) {
       // Error de red - no se recibió respuesta
