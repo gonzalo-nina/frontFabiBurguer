@@ -61,7 +61,8 @@ const ClienteForm = ({ show, onHide, onSave, cliente }: ClienteFormProps) => {
   };
 
   return (
-    <Modal show={show} onHide={onHide}>
+    <Modal show={show} onHide={onHide} backdropClassName="custom-backdrop"
+    style={{ backgroundColor: 'rgba(0, 0, 0, 0.3)' }}>
       <Modal.Header closeButton>
         <Modal.Title>{cliente ? 'Editar Cliente' : 'Nuevo Cliente'}</Modal.Title>
       </Modal.Header>

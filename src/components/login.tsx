@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../styles/login.css'; // Importa el archivo CSS
 import AuthService from '../service/auth';
 import { usuario } from '../types/usuario';
@@ -9,28 +9,72 @@ import 'react-toastify/dist/ReactToastify.css';
 
 interface LoginProps {
   onLogin: (user: usuario) => void;
-  error: string;
+  error?: string;
 }
 
 const Login: React.FC<LoginProps> = ({ onLogin, error }) => {
   const [email, setEmail] = useState('');
   const [clave, setClave] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const [claveError, setClaveError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  const validateEmail = (email: string): boolean => {
+    const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+    return emailRegex.test(email);
+  };
+
+  const sanitizeInput = (input: string): string => {
+    // Remover caracteres especiales y espacios extras
+    return input.replace(/['"\\;`]/g, '').trim();
+  };
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const sanitizedEmail = sanitizeInput(e.target.value);
+    setEmail(sanitizedEmail);
+    
+    if (!sanitizedEmail) {
+      setEmailError('El email es requerido');
+    } else if (!validateEmail(sanitizedEmail)) {
+      setEmailError('Ingrese un email válido (ejemplo@dominio.com)');
+    } else {
+      setEmailError('');
+    }
+  };
+
+  const handleClaveChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const sanitizedClave = sanitizeInput(e.target.value);
+    setClave(sanitizedClave);
+    
+    if (!sanitizedClave) {
+      setClaveError('La contraseña es requerida');
+    } else if (sanitizedClave.length < 3) {
+      setClaveError('La contraseña debe tener al menos 3 caracteres');
+    } else {
+      setClaveError('');
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsLoading(true);
     
-    // Show loading toast
-    const loadingToast = toast.loading('Iniciando sesión...', {
-      position: "top-right"
-    });
+    // Validaciones antes de intentar login
+    if (!validateEmail(email)) {
+      toast.error('Por favor ingrese un email válido');
+      return;
+    }
+
+    if (!clave || clave.length < 3) {
+      toast.error('La contraseña debe tener al menos 3 caracteres');
+      return;
+    }
+
+    setIsLoading(true);
+    const loadingToast = toast.loading('Iniciando sesión...');
 
     try {
       const user = await AuthService.login(email, clave);
-      
       if (user) {
-        // Dismiss loading and show success
         toast.update(loadingToast, {
           render: "¡Bienvenido de vuelta! 🎉",
           type: "success",
@@ -40,10 +84,8 @@ const Login: React.FC<LoginProps> = ({ onLogin, error }) => {
         onLogin(user);
       }
     } catch (error: any) {
-      console.error('Error en login:', error);
-      // Dismiss loading and show error
       toast.update(loadingToast, {
-        render: `Error de autenticación: ${error.message || 'Usuario o contraseña incorrectos'} ❌`,
+        render: `Error de autenticación: ${error.message || 'Credenciales inválidas'} ❌`,
         type: "error",
         isLoading: false,
         autoClose: 4000
@@ -79,13 +121,18 @@ const Login: React.FC<LoginProps> = ({ onLogin, error }) => {
                         <input
                           type="email"
                           id="email"
-                          className="form-control"
-                          placeholder="Email"
+                          className={`form-control ${emailError ? 'is-invalid' : ''}`}
+                          placeholder="ejemplo@dominio.com"
                           value={email}
-                          onChange={(e) => setEmail(e.target.value)}
+                          onChange={handleEmailChange}
                           autoComplete="username"
                           required
                         />
+                        {emailError && (
+                          <div className="invalid-feedback">
+                            {emailError}
+                          </div>
+                        )}
                       </div>
 
                       <div className="form-outline mb-4">
@@ -95,13 +142,18 @@ const Login: React.FC<LoginProps> = ({ onLogin, error }) => {
                         <input
                           type="password"
                           id="password"
-                          className="form-control"
-                          placeholder="Contraseña"
+                          className={`form-control ${claveError ? 'is-invalid' : ''}`}
                           value={clave}
-                          onChange={(e) => setClave(e.target.value)}
+                          onChange={handleClaveChange}
+                          placeholder='Contraseña'
                           autoComplete="current-password"
                           required
                         />
+                        {claveError && (
+                          <div className="invalid-feedback">
+                            {claveError}
+                          </div>
+                        )}
                       </div>
 
                       {error && <div className="alert alert-danger">{error}</div>}
@@ -110,7 +162,7 @@ const Login: React.FC<LoginProps> = ({ onLogin, error }) => {
                         <button
                           type="submit"
                           className="btn btn-primary btn-block botonLogin"
-                          disabled={isLoading}
+                          disabled={isLoading || !!emailError || !!claveError}
                         >
                           {isLoading ? 'Cargando...' : 'Ingresar'}
                         </button>
