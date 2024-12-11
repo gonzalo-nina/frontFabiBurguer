@@ -69,12 +69,15 @@ const ClienteForm = ({ show, onHide, onSave, cliente }: ClienteFormProps) => {
       <Form onSubmit={handleSubmit}>
         <Modal.Body>
           <Form.Group className="mb-3">
-            <Form.Label>Nombre</Form.Label>
+            <Form.Label>
+              Nombre <span className="text-danger">*</span>
+            </Form.Label>
             <Form.Control
               type="text"
               value={formData.nombre}
               onChange={(e) => setFormData({...formData, nombre: e.target.value})}
               isInvalid={!!errors.nombre}
+              required
             />
             <Form.Control.Feedback type="invalid">
               {errors.nombre}
@@ -119,6 +122,10 @@ const ClienteForm = ({ show, onHide, onSave, cliente }: ClienteFormProps) => {
               {errors.direccion}
             </Form.Control.Feedback>
           </Form.Group>
+
+          <small className="text-muted">
+            Los campos marcados con <span className="text-danger">*</span> son obligatorios
+          </small>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={onHide}>

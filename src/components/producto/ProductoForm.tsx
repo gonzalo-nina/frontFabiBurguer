@@ -86,12 +86,15 @@ const ProductoForm = ({ show, onHide, onSave, producto }: ProductoFormProps) => 
       <Form onSubmit={handleSubmit}>
         <Modal.Body>
           <Form.Group className="mb-3">
-            <Form.Label>Nombre</Form.Label>
+            <Form.Label>
+              Nombre <span className="text-danger">*</span>
+            </Form.Label>
             <Form.Control
               type="text"
               value={formData.nombre}
               onChange={(e) => setFormData({...formData, nombre: e.target.value})}
               isInvalid={!!errors.nombre}
+              required
             />
             <Form.Control.Feedback type="invalid">
               {errors.nombre}
@@ -99,13 +102,16 @@ const ProductoForm = ({ show, onHide, onSave, producto }: ProductoFormProps) => 
           </Form.Group>
 
           <Form.Group className="mb-3">
-            <Form.Label>Descripción</Form.Label>
+            <Form.Label>
+              Descripción <span className="text-danger">*</span>
+            </Form.Label>
             <Form.Control
               as="textarea"
               rows={3}
               value={formData.descripcion}
               onChange={(e) => setFormData({...formData, descripcion: e.target.value})}
               isInvalid={!!errors.descripcion}
+              required
             />
             <Form.Control.Feedback type="invalid">
               {errors.descripcion}
@@ -113,7 +119,9 @@ const ProductoForm = ({ show, onHide, onSave, producto }: ProductoFormProps) => 
           </Form.Group>
 
           <Form.Group className="mb-3">
-            <Form.Label>Precio</Form.Label>
+            <Form.Label>
+              Precio <span className="text-danger">*</span>
+            </Form.Label>
             <Form.Control
               type="number"
               min="0"
@@ -121,6 +129,7 @@ const ProductoForm = ({ show, onHide, onSave, producto }: ProductoFormProps) => 
               value={formData.precio}
               onChange={(e) => setFormData({...formData, precio: parseFloat(e.target.value)})}
               isInvalid={!!errors.precio}
+              required
             />
             <Form.Control.Feedback type="invalid">
               {errors.precio}
@@ -128,13 +137,16 @@ const ProductoForm = ({ show, onHide, onSave, producto }: ProductoFormProps) => 
           </Form.Group>
 
           <Form.Group className="mb-3">
-            <Form.Label>Disponibilidad</Form.Label>
+            <Form.Label>
+              Disponibilidad <span className="text-danger">*</span>
+            </Form.Label>
             <Form.Control
               type="number"
               min="0"
               value={formData.disponibilidad}
               onChange={(e) => setFormData({...formData, disponibilidad: parseInt(e.target.value)})}
               isInvalid={!!errors.disponibilidad}
+              required
             />
             <Form.Control.Feedback type="invalid">
               {errors.disponibilidad}
@@ -142,11 +154,14 @@ const ProductoForm = ({ show, onHide, onSave, producto }: ProductoFormProps) => 
           </Form.Group>
 
           <Form.Group className="mb-3">
-            <Form.Label>Catálogo</Form.Label>
+            <Form.Label>
+              Catálogo <span className="text-danger">*</span>
+            </Form.Label>
             <Form.Select
               value={formData.idCatalogo}
               onChange={(e) => setFormData({...formData, idCatalogo: parseInt(e.target.value)})}
               isInvalid={!!errors.idCatalogo}
+              required
             >
               <option value="">Seleccione un catálogo</option>
               {catalogos.map(catalogo => (
@@ -173,6 +188,10 @@ const ProductoForm = ({ show, onHide, onSave, producto }: ProductoFormProps) => 
               {errors.url}
             </Form.Control.Feedback>
           </Form.Group>
+
+          <small className="text-muted">
+            Los campos marcados con <span className="text-danger">*</span> son obligatorios
+          </small>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={onHide}>

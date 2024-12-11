@@ -62,12 +62,15 @@ const CatalogoForm = ({ show, onHide, onSave, catalogo }: CatalogoFormProps) => 
       <Form onSubmit={handleSubmit}>
         <Modal.Body>
           <Form.Group className="mb-3">
-            <Form.Label>Nombre</Form.Label>
+            <Form.Label>
+              Nombre <span className="text-danger">*</span>
+            </Form.Label>
             <Form.Control
               type="text"
               value={formData.nombreCatalogo}
               onChange={(e) => setFormData({...formData, nombreCatalogo: e.target.value})}
               isInvalid={!!errors.nombreCatalogo}
+              required
             />
             <Form.Control.Feedback type="invalid">
               {errors.nombreCatalogo}
@@ -75,13 +78,16 @@ const CatalogoForm = ({ show, onHide, onSave, catalogo }: CatalogoFormProps) => 
           </Form.Group>
 
           <Form.Group className="mb-3">
-            <Form.Label>Descripción</Form.Label>
+            <Form.Label>
+              Descripción <span className="text-danger">*</span>
+            </Form.Label>
             <Form.Control
               as="textarea"
               rows={3}
               value={formData.descripcionCatalogo}
               onChange={(e) => setFormData({...formData, descripcionCatalogo: e.target.value})}
               isInvalid={!!errors.descripcionCatalogo}
+              required
             />
             <Form.Control.Feedback type="invalid">
               {errors.descripcionCatalogo}
@@ -101,6 +107,10 @@ const CatalogoForm = ({ show, onHide, onSave, catalogo }: CatalogoFormProps) => 
               {errors.url}
             </Form.Control.Feedback>
           </Form.Group>
+
+          <small className="text-muted">
+            Los campos marcados con <span className="text-danger">*</span> son obligatorios
+          </small>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={onHide}>
